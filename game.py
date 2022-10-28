@@ -275,9 +275,15 @@ class Game():
 		for i in range(10):
 			self.world.all_weapons[i].draw(screen, 100, (i + 1) * 50 + 20, self.chosen_weapons[i])
 	def toggle_character(self):
-		self.main_menu = False
+		self.paused = True
+		#self.time = 0
 		self.input_name = True
-
+  
+		self.main_menu = False
+		self.world.entities = []
+		self.world.player = None
+		self.weapon_select = True
+		self.timeStop = True
 	def save_name(self):
 		self.name = self.textinput.value
 		self.start()
@@ -363,6 +369,7 @@ class Game():
 						self.button(screen,"Bonus",320,i*150,300,130,(255,255,0),(255,0,0),self.levelUp_Exp)
 					if sample_list[i] == 'Health':
 						self.button(screen,"Max Health",320,i*150,300,130,(255,255,0),(255,0,0),self.levelUp_health)
+      
 	#========================= LEVEL ============================================================================
 	def draw_CharacterInput(self,screen):
 		screen.blit(self.textinput.surface, (350, 270))
@@ -371,7 +378,7 @@ class Game():
 	def draw_pauseScreen(self,screen):
 		self.button(screen,"RESUME",400,120,150,90,(255,255,0),(255,0,0),self.toggle_pause)
 		self.button(screen,"QUIT",400,320,150,90,(255,255,0),(255,0,0),self.menu)
-		self.timeStop = True
+		#self.timeStop = True
 	def draw_mainMenu(self, screen):
 			self.button(screen,"START A GAME",350,120,250,90,(255,255,0),(255,0,0),self.toggle_character)
 			self.button(screen,"Leaderboard",350,220,250,90,(255,255,0),(255,0,0))
@@ -399,6 +406,7 @@ class Game():
 			self.toDelTime += abs(self.stopEnd - self.stopStart)
 		self.paused = not self.paused
 		self.timeStop = not self.timeStop
+  
 	def choose_weapon(self, num):
 		def choose():
 			if self.weapon_select:
@@ -420,9 +428,11 @@ class Game():
 
 	def start(self):
 		self.startTime  = time.time()
+		
 		self.name = ''
 		self.main_menu = False
 		self.timeStop == False
+		self.toDelTime = 0
 		num_weapons = 0
 		self.world.add_enemies()
 		for i in range(10):
@@ -441,7 +451,6 @@ if __name__ == '__main__':
 	pygame.display.set_caption(config.title)
 	g = Game()
 	clock = pygame.time.Clock()
-	print(clock)
 	while True:
 		clock.tick(50)
 		g.update()		
