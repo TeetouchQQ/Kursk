@@ -49,6 +49,8 @@ class World:
 		beamer_enemies = [factories.create_beamer_enemy(self.bounds()) for i in range(self.difficulty.num_beamer_enemies)]
 		scanner_enemies = [factories.create_scanner_enemy(self.bounds()) for i in range(self.difficulty.num_scanner_enemies)]
 		return enemies + motherships + light_enemies + shotgunner_enemies + beamer_enemies + scanner_enemies
+	def spawn_basic(self,amount):
+		self.entities +=  [factories.create_basic_enemy(self.bounds()) for i in range(amount)]
 	def spawn_Mothership(self,amount):
 		self.entities +=  [factories.create_mothership(self.bounds()) for i in range(amount)]
 		

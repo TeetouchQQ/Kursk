@@ -82,8 +82,6 @@ class BounceMoveController(Controller):
 		entity.position.x += entity.direction.x * self.speed
 		entity.position.y += entity.direction.y * self.speed			
 
-							
-
       
 		if not (0 < entity.position.x < width - entity.width):
 			entity.position.x -= entity.direction.x * self.speed
@@ -100,10 +98,6 @@ class BounceMoveController(Controller):
 		entity.rotated_turret_sprite = entity.rotate_center(entity.sprite, entity.sprite.get_rect(), -entity.angle)
 		entity.aim_angle = angle
         
-        
-  
-
-
 class PlayerHunterController(Controller):
 
 	def __init__(self, speed=2, sight_range=300, sprint=2):

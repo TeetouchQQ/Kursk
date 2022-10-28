@@ -93,7 +93,7 @@ class Game():
 			if handler:
 				handler()
 		
-		if not self.paused:
+		if not self.paused and self.timeStop == False:
 			
 			for entity in self.world.entities:
 				entity.view_world(self.world)
@@ -179,9 +179,9 @@ class Game():
 						self.sample_list = self.upAvalible[:3]
 						
 			#900 + 700 /2
-			zoom = 1.2
+			
 			wnd_w, wnd_h = screen.get_size()
-			zoom_size = (round(wnd_w/zoom), round(wnd_h/zoom))
+			zoom_size = (round(wnd_w/config.zoom), round(wnd_h/config.zoom))
 			zoom_area = pygame.Rect(0, 0, *zoom_size)
 			zoom_area.center = (player_x, player_y)
 			self.zoom_surf = pygame.Surface(zoom_area.size)
@@ -211,6 +211,8 @@ class Game():
 				if pr.prob(config.shotgun_probs):
 					self.world.spawn_Shotgun(2) 
      
+				if pr.prob(config.basic_probs):
+					self.world.spawn_basic(2) 
 				self.last_sec = sec
 				
     
@@ -452,7 +454,7 @@ if __name__ == '__main__':
 	g = Game()
 	clock = pygame.time.Clock()
 	while True:
-		clock.tick(50)
+		clock.tick(60)
 		g.update()		
 		g.draw(screen)        
 		pygame.display.flip()

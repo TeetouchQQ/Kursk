@@ -16,7 +16,7 @@ import config
 
 class Tank(Entity):
 	def __init__(self, position, controllers, size=20, max_health=20, high_colour=(255, 0, 0), low_colour=(100, 0, 100),
-				collision_radius=10, weapons=[], is_player =False, sprite_coords=((0, 0, 40, 40), (40, 0, 40, 40),(0, 255, 0))):
+				collision_radius=10, weapons=[], is_player =False, sprite_coords=((0, 0, 40, 40), (40, 0, 40, 40),(0, 255, 0)),Tanktype = None):
 		super().__init__(position, sprite_coords=sprite_coords, collision_radius=collision_radius)
 		self.direction = Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize()
   
@@ -48,11 +48,54 @@ class Tank(Entity):
   
 		self.rect = pygame.Rect(self.position.x,self.position.y,self.width,self.width)
 		self.old_rect = self.rect
-  
-		self.turret_sprite = self.get_turret_sprite()
-		self.rotated_turret_sprite = self.turret_sprite
+		if is_player:
+			
+			self.turret_sprite = pygame.image.load(config.player_turrent).convert_alpha()
+			self.sprite   = pygame.image.load(config.player_sprite).convert_alpha()
+			self.sprite = transform.scale(self.sprite, (self.width, self.height))
+			self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
+		else:
+			self.Tanktype = Tanktype
+			if self.Tanktype == 'mothership':
+				self.sprite = pygame.image.load(config.mothership_sprite).convert_alpha()
+				self.turret_sprite  = pygame.image.load(config.mothership_turrent).convert_alpha()
+				self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
+				self.sprite = transform.scale(self.sprite, (self.width, self.height))
+			elif self.Tanktype == 'lightTank':
+				self.sprite = pygame.image.load(config.lighttank_sprite).convert_alpha()
+				self.turret_sprite  = pygame.image.load(config.lighttank_turrent).convert_alpha()
+				self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
+				self.sprite = transform.scale(self.sprite, (self.width, self.height))
+			elif self.Tanktype == 'shotgunner':
+				self.sprite = pygame.image.load(config.shotgun_sprite).convert_alpha()
+				self.turret_sprite  = pygame.image.load(config.shotgun_turrent).convert_alpha()
+				self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
+				self.sprite = transform.scale(self.sprite, (self.width, self.height))
+			elif self.Tanktype == 'beamer':
+				self.sprite = pygame.image.load(config.beamer_sprite).convert_alpha()
+				self.turret_sprite  = pygame.image.load(config.beamer_turrent).convert_alpha()
+				self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
+				self.sprite = transform.scale(self.sprite, (self.width, self.height))
+			elif self.Tanktype == 'basic':
+				self.sprite = pygame.image.load(config.basic_sprite).convert_alpha()
+				self.turret_sprite  = pygame.image.load(config.basic_turrent).convert_alpha()
+				self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
+				self.sprite = transform.scale(self.sprite, (self.width, self.height))
+			elif self.Tanktype == 'healer':
+				self.sprite = pygame.image.load(config.healer_sprite).convert_alpha()
+				self.turret_sprite  = pygame.image.load(config.healer_turrent).convert_alpha()
+				self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
+				self.sprite = transform.scale(self.sprite, (self.width, self.height))
+			elif self.Tanktype == 'scanner':
+				self.sprite = pygame.image.load(config.scanner_sprite).convert_alpha()
+				self.turret_sprite  = pygame.image.load(config.scanner_turrent).convert_alpha()
+				self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
+				self.sprite = transform.scale(self.sprite, (self.width, self.height))
+			# else:
+			# 	self.turret_sprite = self.get_turret_sprite()
+			# 	self.image_body = self.turret_sprite 
 
-		self.image_body = self.turret_sprite 
+		self.rotated_turret_sprite = self.turret_sprite
 		self.image_turrent = self.rotated_turret_sprite
 	def view_world(self, world):
 		for controller in self.controllers:
@@ -68,8 +111,7 @@ class Tank(Entity):
 		self.rect = pygame.Rect(self.position.x,self.position.y,self.width,self.width)
 		
 	def draw(self, screen):
-		self.sprite = transform.scale(self.sprite, (self.width, self.height))
-		self.turret_sprite = transform.scale(self.turret_sprite, (70, 20))
+		
 		old_rect = self.sprite.get_rect(center = (self.position.x + self.width/2, self.position.y + self.height/2))
 		rotate_rect = self.turret_sprite.get_rect(center = ((self.position.x + 12), (self.position.y + 16)))
 		
@@ -83,12 +125,12 @@ class Tank(Entity):
 		self.draw_health_bar(screen)
 
 	def rotate_by_angle(self, image, angle, rotations={}):
-		r = rotations.get(image, 0) + angle
+		r = rotations.get(image, 0) + round(angle)
 		rotations[image] = r
 		return transform.rotate(image, r)
 
 	def rotate_center(self, image, rect, angle):
-		rot_image = transform.rotate(image, angle)
+		rot_image = transform.rotate(image, round(angle-90))
 		rot_rect = rot_image.get_rect(center=rect.center)
 		return rot_image,rot_rect
 
