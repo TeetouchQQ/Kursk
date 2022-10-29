@@ -31,19 +31,22 @@ from Player import Player
 from scipy.interpolate import interp1d
 import config
 import time
-global camera_x
-global camera_y
+
 class Game():
 	def __init__(self):
 		#self.bg_img = pygame.image.load('map1.png')
 		self.background = (0, 0, 0)
 		self.world = World()
+		#STATE
 		self.paused = False
 		self.main_menu = True
 		self.weapon_select = True
 		self.levelUp = False
-		self.chosen_weapons = []
 		self.input_name = False
+	
+  
+		self.chosen_weapons = []
+		
 
 		self.pygameZoom = PygameZoom(width, height)
 		self.pygameZoom.set_zoom_strength(2)
@@ -454,7 +457,7 @@ if __name__ == '__main__':
 	g = Game()
 	clock = pygame.time.Clock()
 	while True:
-		clock.tick(60)
+		clock.tick(50)
 		g.update()		
 		g.draw(screen)        
 		pygame.display.flip()

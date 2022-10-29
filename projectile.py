@@ -7,7 +7,7 @@ from pygame.math import Vector2
 from pygame import gfxdraw
 import pygame
 from entity import Entity
-
+import config
 from config import width, height
 
 
@@ -25,13 +25,17 @@ class Projectile(Entity):
 		self.flame = False
 		self.explosive = False
 		self.blast_damage = 0
-
+		self.image = pygame.image.load(config.bullet_im).convert_alpha()
 	def update(self):
 		pass
 
 	def draw(self, screen):
-		gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, (0, 255, 0))
-		gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, (0, 255, 0))
+		pass
+		#print(self.owner.is_player)
+		#print(math.atan2(self.direction.x,self.direction.y))
+		#screen.blit(self.image, (int(self.position.x), int(self.position.y)))
+		#gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, (255, 0, 0))
+		#gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, (0, 255, 0))
 
 	def view_world(self, world):
 		pass
@@ -48,7 +52,22 @@ class Bullet(Projectile):
 			self.remove = True
 		if not (0 < self.position.y < height):
 			self.remove = True
+	def draw(self,screen):
+		self.image = pygame.image.load(config.bullet_im).convert_alpha()
+		self.image = pygame.transform.scale(self.image, (8,52))
+  
+		angle = (math.atan2(self.direction.x,self.direction.y))
+		angle %= 2*math.pi
+		angle = math.degrees(angle)
 
+		rot_image = pygame.transform.rotate(self.image, round(angle-180))
+		rotate_rect = self.image.get_rect(center = ((self.position.x), (self.position.y)))
+		rot_rect = rot_image.get_rect(center=rotate_rect.center)
+  
+		#screen.blit(rotated_image, new_rect.topleft)
+  
+		#pygame.draw.rect(screen, (255,0,255), (int(self.position.x), int(self.position.y),10,50))
+		screen.blit(rot_image,rot_rect)
 class Pellet(Projectile):
 	def __init__(self, position, direction, owner, damage=2.5, size=1, speed=12):
 		super().__init__(position, direction, owner, damage, size=size, speed=speed)

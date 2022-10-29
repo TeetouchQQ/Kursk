@@ -53,7 +53,7 @@ class Tank(Entity):
 			self.turret_sprite = pygame.image.load(config.player_turrent).convert_alpha()
 			self.sprite   = pygame.image.load(config.player_sprite).convert_alpha()
 			self.sprite = transform.scale(self.sprite, (self.width, self.height))
-			self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
+			self.turret_sprite = transform.scale(self.turret_sprite, (12, 62))
 		else:
 			self.Tanktype = Tanktype
 			if self.Tanktype == 'mothership':
@@ -113,9 +113,10 @@ class Tank(Entity):
 	def draw(self, screen):
 		
 		old_rect = self.sprite.get_rect(center = (self.position.x + self.width/2, self.position.y + self.height/2))
-		rotate_rect = self.turret_sprite.get_rect(center = ((self.position.x + 12), (self.position.y + 16)))
-		
+  
+		rotate_rect = self.turret_sprite.get_rect(center = (self.position.x + self.width/2, self.position.y + self.height/2))		
 		self.rotated_turret_sprite, old_turret_rect = self.rotate_center(self.turret_sprite, rotate_rect, self.aim_angle)
+  
 		self.rotated_sprite, new_rect = self.rotate_center(self.sprite, old_rect, self.angle)
 
 		screen.blit(self.rotated_sprite, new_rect)
