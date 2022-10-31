@@ -12,7 +12,7 @@ name_bg = 'bg\input.png'
 level_bg = 'bg\level_bg.png'
 map_bg = 'bg\map.png'
 width, height = 1280, 800
-zoom = 1.5
+zoom = 1.8
 player_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_dark.png'
 player_turrent = 'resize_asset\\TankRed_barrel.png'
 

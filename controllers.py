@@ -75,7 +75,7 @@ class BounceMoveController(Controller):
 							enemy.rect.top = entity.rect.bottom
 							enemy.position.y = enemy.rect.y
 
-		if (entity.position - self.player_position).length() < 30:
+		if (entity.position - self.player_position).length() < 40:
 				entity.direction.x = 0
 				entity.direction.y = 0
     
