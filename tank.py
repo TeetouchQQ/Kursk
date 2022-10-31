@@ -48,6 +48,8 @@ class Tank(Entity):
   
 		self.rect = pygame.Rect(self.position.x,self.position.y,self.width,self.width)
 		self.old_rect = self.rect
+  
+		self.gameOver = False
 		if is_player:
 			
 			self.turret_sprite = pygame.image.load(config.player_turrent).convert_alpha()
@@ -168,16 +170,18 @@ class Tank(Entity):
 				self.on_fire = True
 				self.fire_time = 150
 			if other.explosive and not other.exploding:
-				other.explode()
+				other.explode()	
 
 			self.health = max(self.health - ((other.damage + other.blast_damage) * self.damage_bonus), 0)
 			#print(other.damage)
 			if self.health <= 0:
 				for die_controller in self.controllers:
 					die_controller.die(self, other)
+				
 				other.owner.kills += 1
 				other.owner.exp  += 1 * other.owner.expBonus
-				
+				if self.is_player:
+					other.owner.gameOver = True
 
 	def handle_fire(self):
 		self.fire_time = max(self.fire_time - 1, 0)

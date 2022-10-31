@@ -25,17 +25,13 @@ class Projectile(Entity):
 		self.flame = False
 		self.explosive = False
 		self.blast_damage = 0
-		self.image = pygame.image.load(config.bullet_im).convert_alpha()
+		#self.image = pygame.image.load(config.bullet_im).convert_alpha()
 	def update(self):
 		pass
 
 	def draw(self, screen):
-		pass
-		#print(self.owner.is_player)
-		#print(math.atan2(self.direction.x,self.direction.y))
-		#screen.blit(self.image, (int(self.position.x), int(self.position.y)))
-		#gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, (255, 0, 0))
-		#gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, (0, 255, 0))
+		gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, (0, 255, 0))
+		gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, (0, 255, 0))
 
 	def view_world(self, world):
 		pass
@@ -45,6 +41,9 @@ class Bullet(Projectile):
 		super().__init__(position, direction, owner, damage, size=size, speed=speed)
 		self.collision_radius = size
 		self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
+  
+		self.image = pygame.image.load(config.bullet_im).convert_alpha()
+		self.image = pygame.transform.scale(self.image, (8*(self.size*0.25),52*(self.size*0.4)))
 	def update(self):
 		self.position += self.direction * self.speed
 
@@ -53,8 +52,7 @@ class Bullet(Projectile):
 		if not (0 < self.position.y < height):
 			self.remove = True
 	def draw(self,screen):
-		self.image = pygame.image.load(config.bullet_im).convert_alpha()
-		self.image = pygame.transform.scale(self.image, (8,52))
+		
   
 		angle = (math.atan2(self.direction.x,self.direction.y))
 		angle %= 2*math.pi
@@ -63,11 +61,8 @@ class Bullet(Projectile):
 		rot_image = pygame.transform.rotate(self.image, round(angle-180))
 		rotate_rect = self.image.get_rect(center = ((self.position.x), (self.position.y)))
 		rot_rect = rot_image.get_rect(center=rotate_rect.center)
-  
-		#screen.blit(rotated_image, new_rect.topleft)
-  
-		#pygame.draw.rect(screen, (255,0,255), (int(self.position.x), int(self.position.y),10,50))
 		screen.blit(rot_image,rot_rect)
+  
 class Pellet(Projectile):
 	def __init__(self, position, direction, owner, damage=2.5, size=1, speed=12):
 		super().__init__(position, direction, owner, damage, size=size, speed=speed)
@@ -118,7 +113,7 @@ class Flame(Projectile):
 		self.b = max(self.b - 10, 0)
 		gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, (self.r, self.g, self.b))
 		gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, (self.r, self.g, self.b))
-
+	
 class Rocket(Projectile):
 
 	def __init__(self, position, direction, owner, damage=0, size=7, speed=15, explosive=True):
@@ -133,6 +128,8 @@ class Rocket(Projectile):
 		self.colour = (255, 0, 0)
 		self.remove_timer = 6
 		self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
+		self.rocket = pygame.image.load(config.rocket_bullet).convert_alpha()
+		self.rocket = pygame.transform.scale(self.rocket, (8*(self.size*0.25),52*(self.size*0.4)))
 	def update(self):
 
 		if self.exploding:
@@ -149,15 +146,26 @@ class Rocket(Projectile):
 			self.remove = True
 
 	def draw(self, screen):
-		gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, self.colour)
-		gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, self.colour)
+		# gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, self.colour)
+		# gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, self.colour)
+		angle = (math.atan2(self.direction.x,self.direction.y))
+		angle %= 2*math.pi
+		angle = math.degrees(angle)
 
+		rot_image = pygame.transform.rotate(self.rocket, round(angle-180))
+		rotate_rect = self.rocket.get_rect(center = ((self.position.x), (self.position.y)))
+		rot_rect = rot_image.get_rect(center=rotate_rect.center)
+		screen.blit(rot_image,rot_rect)
+  
 	def explode(self):
+		self.rocket = pygame.image.load(config.rocket_explosive).convert_alpha()
+		self.rocket = pygame.transform.scale(self.rocket, (40*self.size,40*self.size))
 		self.size = 40
 		self.collision_radius = 50
 		self.speed = 0
 		self.colour = (255, 120, 0)
 		self.exploding = True
+		
 
 class MicroMissile(Projectile):
 

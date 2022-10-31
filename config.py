@@ -4,10 +4,14 @@ class Enemies:
 
 
 class Player:
-	health = 999999
+	health = 10000
 	max_secondary_bullets = 8
 
-width, height = 1080, 920
+menu_bg = 'bg\Menu_logo.png'
+name_bg = 'bg\input.png'
+level_bg = 'bg\level_bg.png'
+map_bg = 'bg\map.png'
+width, height = 1280, 800
 zoom = 1.5
 player_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_dark.png'
 player_turrent = 'resize_asset\\TankRed_barrel.png'
@@ -46,6 +50,9 @@ scanner_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_green.png'
 scanner_turrent= 'resize_asset\\tankGreen_barrel1.png'
 
 bullet_im = 'resize_asset\shotThin.png'
+shotgun_im = 'resize_asset\shotThin.png'
+rocket_bullet = 'resize_asset\shotRed.png'
+rocket_explosive = 'Asset_ALL\\PNG\Retina\\explosion3.png'
 class EasyDifficulty:
 	index = 0
 	num_enemies = 1

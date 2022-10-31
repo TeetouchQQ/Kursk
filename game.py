@@ -43,7 +43,7 @@ class Game():
 		self.weapon_select = True
 		self.levelUp = False
 		self.input_name = False
-	
+		self.gameOver = False
   
 		self.chosen_weapons = []
 		
@@ -59,6 +59,9 @@ class Game():
 		self.name = ''
 		self.textinput = pygame_textinput.TextInputVisualizer()
 
+
+		self.map_bg = pygame.image.load(config.map_bg)
+		self.map_bg = pygame.transform.scale(self.map_bg, (width,height))
 		##TIME
 		self.timeStop = False
 		self.startTime = 0
@@ -146,17 +149,22 @@ class Game():
 	def draw(self, screen):
 		if self.timeStop == False:
 			self.time = time.time()
-		if self.paused == False and self.main_menu == False and self.levelUp == False:
+		if self.paused == False and self.main_menu == False and self.levelUp == False and self.gameOver == False:
 			#print(self.timeStop)
-			screen.fill((255,255,255))
+			
+
+			screen.blit(self.map_bg, (0, 0))
 			player_x = 0
 			player_y = 0
+			
 			for entity in self.world.entities:
 				entity.draw(screen)
+			
 				if entity is self.world.player:
+					
 					player_x = self.world.player.position.x
 					player_y = self.world.player.position.y
-
+					
 					#Level Logic
 					self.exp_bar = entity.exp*(width/entity.exp_perLevel)
 					if self.exp_bar >= width:
@@ -170,17 +178,18 @@ class Game():
 						if entity.controllers[0].main_weapon < 5:
 							self.upAvalible.append('Main')
 					
-						if entity.controllers[0].second_weapon < 4:
+						if entity.controllers[0].second_weapon < 3:
 							self.upAvalible.append('Second')
 
 						self.upAvalible.append('Damage')
 						self.upAvalible.append('Bonus')
 						self.upAvalible.append('Health')
 
-		# k = number of items to select
+
 						random.shuffle(self.upAvalible)
 						self.sample_list = self.upAvalible[:3]
-						
+
+					
 			#900 + 700 /2
 			
 			wnd_w, wnd_h = screen.get_size()
@@ -188,9 +197,8 @@ class Game():
 			zoom_area = pygame.Rect(0, 0, *zoom_size)
 			zoom_area.center = (player_x, player_y)
 			self.zoom_surf = pygame.Surface(zoom_area.size)
-			self.zoom_surf.fill((255,0,255))
+			self.zoom_surf.fill((0,0,0))
 			self.zoom_surf.blit(screen, (0, 0), zoom_area)
-			
 			self.zoom_surf = pygame.transform.scale(self.zoom_surf, (wnd_w, wnd_h))
 			#print((self.time - self.startTime) - abs(self.stopEnd - self.stopStart))
 			second = (self.time - self.startTime) - self.toDelTime
@@ -227,12 +235,17 @@ class Game():
 			font=pygame.freetype.SysFont(None, 34)
 			font.origin=True
 			out='{minutes:02d}:{seconds:02d}'.format(minutes=minute, seconds=sec)
-			font.render_to(self.zoom_surf, (400, 80), out,pygame.Color('dodgerblue'))
+			font.render_to(self.zoom_surf, (width/2, 80), out,pygame.Color('dodgerblue'))
 			#pygame.display.flip()
-   
+
 			pygame.draw.rect(self.zoom_surf,(0,0,0),(0,0,width,height/16))
 			pygame.draw.rect(self.zoom_surf,(255,0,0),(0,0,self.exp_bar,height/16))
 			for entity in self.world.entities:
+				if (isinstance(entity,Tank)) == True:
+					if entity.gameOver == True:
+						self.gameOver = True
+						print('Save GAME')
+						#self.draw_GameOver(self.zoom_surf)
 				if entity is self.world.player:
 					font=pygame.freetype.SysFont(None, 25)
 					font.origin=True
@@ -240,6 +253,7 @@ class Game():
 					font.render_to(self.zoom_surf, (50, 130),'Damage : '+ str(entity.damage_bonus),pygame.Color('dodgerblue'))
 					font.render_to(self.zoom_surf, (50, 160),'exp : '+ str(entity.expBonus),pygame.Color('black'))
 					font.render_to(self.zoom_surf, (50, 190),'maxHP : '+ str(entity.max_health),pygame.Color('dodgerblue'))
+					font.render_to(self.zoom_surf, (50, 220),'Weapon : '+ str(entity.weapons[entity.current_weapon].name),pygame.Color('dodgerblue'))
 			#self.draw_text(self.zoom_surf,"EXP : " +str(self.world.player.), (255,0,0), 70, 50, height/16+10)
 			#self.draw_text(self.zoom_surf,str(self.world.player.level), (0,0,0), 70, 50, height/16+30)
 			#self.draw_text(self.zoom_surf,"KILLS : "+str(self.world.player.level), (255,0,0), 70, 50, height/16+50)
@@ -253,13 +267,19 @@ class Game():
 					self.draw_levelUp(screen,self.sample_list)
 					print(self.sample_list)
 					#self.timeStop = True
+
 		elif self.main_menu == False and self.paused == True and self.levelUp == False:
 			self.draw_pauseScreen(screen)
 			#self.timeStop = True
+		elif self.gameOver == True:
+			self.draw_GameOver(screen)
+			print('GameOver')
+   
 		elif self.main_menu == True:
 			screen.fill(self.background)
 			self.draw_mainMenu(screen)
-			
+   
+		
 		if self.input_name == True:
 			screen.fill((255,255,255))
 			self.draw_CharacterInput(screen)
@@ -355,28 +375,47 @@ class Game():
 		#print('level up draw')
 		to_up = ['Main','Second','Damage','Bonus','Health']
 		
-   
-		pygame.draw.rect(screen,(0,0,0),(150,50,600,700))
-		font=pygame.freetype.SysFont(None, 34)
+		level_bg = pygame.image.load(config.level_bg)
+		level_bg = pygame.transform.scale(level_bg, (1000,600))
+
+		screen.blit(level_bg, (150, 100))
+		#pygame.draw.rect(screen,(0,0,0),(150,50,600,700))
+		font=pygame.freetype.SysFont(None, 70)
 		font.origin=True
 			
-		font.render_to(screen, (400, 100), 'Level Up',pygame.Color('dodgerblue'))
+		font.render_to(screen, (500, 170), 'Level Up',pygame.Color('green'))
+		font=pygame.freetype.SysFont(None, 34)
+		font.origin=True
 		for entity in self.world.entities:
 			if entity is self.world.player:
 				for i in range(len(sample_list)):
 					if sample_list[i] == 'Main':
-						self.button(screen,"Main Weapon",320,i*150,300,130,(255,255,0),(255,0,0),self.levelUp_Maingun)
+						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
+						font.render_to(screen, ((i*320)+220,250), "Main Weapon",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Maingun)
 					if sample_list[i] == 'Second':
-						self.button(screen,"Second Weapon",320,i*150,300,130,(255,255,0),(255,0,0),self.levelUp_Secondgun)
+						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
+						font.render_to(screen, ((i*320)+220,250), "Second Weapon",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Secondgun)
 					if sample_list[i] == 'Damage':
-						self.button(screen,"Damage",320,i*150,300,130,(255,255,0),(255,0,0),self.levelUp_damage)
+						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
+						font.render_to(screen, ((i*320)+220,250), "Damage",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_damage)
 					if sample_list[i] == 'Bonus':
-						self.button(screen,"Bonus",320,i*150,300,130,(255,255,0),(255,0,0),self.levelUp_Exp)
+						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
+						font.render_to(screen, ((i*320)+220,250), "Bonus",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Exp)
 					if sample_list[i] == 'Health':
-						self.button(screen,"Max Health",320,i*150,300,130,(255,255,0),(255,0,0),self.levelUp_health)
+						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
+						font.render_to(screen, ((i*320)+220,250), "Health",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_health)
       
 	#========================= LEVEL ============================================================================
 	def draw_CharacterInput(self,screen):
+		bg = pygame.image.load(config.name_bg)
+		bg = pygame.transform.scale(bg, (width,height))
+
+		screen.blit(bg, (0, 0))
 		screen.blit(self.textinput.surface, (350, 270))
 		self.button(screen,"LETS GO",350,300,200,90,(255,255,0),(255,0,0),self.save_name)
   
@@ -385,10 +424,17 @@ class Game():
 		self.button(screen,"QUIT",400,320,150,90,(255,255,0),(255,0,0),self.menu)
 		#self.timeStop = True
 	def draw_mainMenu(self, screen):
-			self.button(screen,"START A GAME",350,120,250,90,(255,255,0),(255,0,0),self.toggle_character)
-			self.button(screen,"Leaderboard",350,220,250,90,(255,255,0),(255,0,0))
-			self.button(screen,"OPTION",350,320,250,90,(255,255,0),(255,0,0))
-			self.button(screen,"EXIT",350,420,250,90,(255,255,0),(255,0,0))
+			bg = pygame.image.load(config.menu_bg)
+			bg = pygame.transform.scale(bg, (width,height))
+
+			screen.blit(bg, (0, 0))
+			self.button(screen,"START A GAME",750,220,300,90,(0,0,0),(255,0,0),self.toggle_character)
+			self.button(screen,"Leaderboard",750,330,300,90,(0,0,0),(255,0,0))
+			self.button(screen,"OPTION",750,440,300,90,(0,0,0),(255,0,0))
+			self.button(screen,"EXIT",750,550,300,90,(0,0,0),(255,0,0))
+	def draw_GameOver(self,screen):
+			screen.fill((0,0,0))
+			self.button(screen,"Continue",400,400,200,90,(255,255,0),(255,0,0),self.menu)
 
 	def draw_box(self, screen, x, y, active, string):
 		draw.rect(screen, (80, 0, 0), (x, y, 110, 20))
@@ -427,6 +473,7 @@ class Game():
 		self.world.player = None
 		self.weapon_select = True
 		self.timeStop = True
+		self.gameOver  = False
 		self.toggle_pause()
 
 		
@@ -448,6 +495,7 @@ class Game():
 			#self.player = Player(self.input_name)
 			self.world.player = factories.create_player(Vector2(450, 350), self.chosen_weapons)
 			self.world.entities.append(self.world.player)
+		
 
 
 if __name__ == '__main__':
