@@ -51,6 +51,7 @@ class Bullet(Projectile):
 			self.remove = True
 		if not (0 < self.position.y < height):
 			self.remove = True
+   
 	def draw(self,screen):
 		
   
@@ -136,6 +137,7 @@ class Rocket(Projectile):
 			self.remove_timer = max(0, self.remove_timer - 1)
 			self.blast_damage = 0
 			self.size += 5
+   
 		self.position += self.direction * self.speed
 
 		if not (0 < self.position.x < width) and not self.exploding:
@@ -167,101 +169,3 @@ class Rocket(Projectile):
 		self.exploding = True
 		
 
-class MicroMissile(Projectile):
-
-	def __init__(self, position, target, controller, direction, owner, damage=0, size=3, speed=35, explosive=True):
-		super().__init__(position, direction, owner, damage, size=size, speed=speed)
-		self.collision_radius = size
-		self.penetrate = False
-		self.direction = direction
-		self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
-		self.explosive = explosive
-		self.target = Vector2(target)
-		self.blast_damage = 7
-		self.exploding = False
-		self.colour = (255, 0, 0)
-		self.remove_timer = 6
-
-		self.controller = controller
-
-		self.mod = 1
-		if random.uniform(1, -1) < 0:
-			self.mod = -1
-
-	def update(self):
-
-		if self.exploding:
-			self.remove_timer -= 1
-
-			self.blast_damage = 0
-			self.size += 3
-
-		self.controller.control(self)
-
-		if not (0 < self.position.x < width) and not self.exploding:
-			self.explode()
-		if not (0 < self.position.y < height) and not self.exploding:
-			self.explode()
-		if self.position.distance_to(self.controller.target_position) < 25 and not self.exploding:
-			self.explode()
-		if self.remove_timer <= 0:
-			self.remove = True
-
-	def draw(self, screen):
-		gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, self.colour)
-		gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, self.colour)
-
-	def explode(self):
-		self.size = 10
-		self.collision_radius = 30
-		self.controller.speed = 0
-		self.colour = (255, 120, 0)
-		self.exploding = True
-
-class GuidedMissile(Projectile):
-
-	def __init__(self, position, controller, direction, owner, damage=0, size=7, speed=15, explosive=True):
-		super().__init__(position, direction, owner, damage, size=size, speed=speed)
-		self.collision_radius = size
-		self.penetrate = False
-		self.direction = direction
-		self.explosive = explosive
-		self.blast_damage = 50
-		self.exploding = False
-		self.colour = (255, 0, 0)
-		self.remove_timer = 6
-		self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
-		self.controller = controller
-
-	def update(self):
-
-		if self.exploding:
-			self.remove_timer = max(0, self.remove_timer - 1)
-			self.blast_damage = 0
-			self.size += 5
-
-		self.controller.control(self)
-		
-		if not (0 < self.position.x < width) and not self.exploding:
-			self.explode()
-		if not (0 < self.position.y < height) and not self.exploding:
-			self.explode()
-		if self.position.distance_to(self.controller.target_position) < 25 and not self.exploding:
-			self.explode()
-
-		if self.remove_timer == 0:
-			self.remove = True
-
-	def draw(self, screen):
-		gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, self.colour)
-		gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, self.colour)
-
-	def explode(self):
-		self.size = 40
-		self.collision_radius = 70
-		self.controller.speed = 0
-		self.colour = (255, 120, 0)
-		self.exploding = True
-
-	def view_world(self, world):
-		self.controller.view_world(self, world)

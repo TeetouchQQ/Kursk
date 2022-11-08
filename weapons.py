@@ -11,8 +11,7 @@ from pygame import font
 from config import width, height
 from entity import Entity
 from hitscanner import SniperShot, Beam
-from projectile import Bullet, Flame, Rocket, MicroMissile, GuidedMissile
-from projectile import Pellet
+from projectile import Bullet, Flame, Rocket,Pellet
 
 from config import Player
 
@@ -220,56 +219,3 @@ class RocketLauncher(Weapon):
 			self.cooldown = self.max_cooldown
 
 
-class MissileBarrage(Weapon):
-
-	def __init__(self, cooldown=10):
-		self.max_cooldown = cooldown
-		self.cooldown = 0
-		self.spread = 0
-		self.max_deviation = 300
-
-		self.name = 'Missile Barrage (%d%%)' % int((self.spread / self.max_deviation)*100)
-
-	def control(self, entity, target, point, buttons):
-		self.name = 'Missile Barrage (%d%%)' % int((self.spread / self.max_deviation) * 100)
-
-		from controllers import TargeterController
-
-		self.cooldown -= 1
-
-		button1, button2, button3 = buttons
-
-		if not button1 and self.cooldown <= 0:
-			self.spread = max(self.spread - 0.4, 0)
-
-		if button1 and self.cooldown <= 0:
-			direction = (target - entity.position).normalize()
-			deviation = 1
-			if random.uniform(1, -1) < 0:
-				deviation = -1
-			start_direction = direction.rotate(50*deviation)
-			rocket = MicroMissile(entity.position + Vector2(entity.width/2, entity.height/2), point, TargeterController(target=point, start_direction=start_direction, deviation=self.spread),
-			                      direction, entity)
-			entity.spawn.append(rocket)
-			self.spread = min(self.spread + 2.5, self.max_deviation)
-			self.cooldown = self.max_cooldown
-
-
-class GuidedMissileLauncher(Weapon):
-
-	def __init__(self, cooldown=150):
-		self.max_cooldown = cooldown
-		self.cooldown = 0
-		self.name = 'Guided Missile'
-
-	def control(self, entity, target, point, buttons):
-
-		from controllers import EnemyHunterController
-
-		self.cooldown -= 1
-		button1, button2, button3 = buttons
-		if button1 and self.cooldown <= 0:
-			rocket = GuidedMissile(entity.position + Vector2(entity.width / 2, entity.height / 2), EnemyHunterController(target=point), (target - entity.position).normalize(), entity)
-			#print('new3 : ',(target - entity.position).normalize())
-			entity.spawn.append(rocket)
-			self.cooldown = self.max_cooldown

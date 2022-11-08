@@ -3,7 +3,7 @@ import controllers
 import config
 import weapons
 from health_pack import HealthPack
-from projectile import GuidedMissile
+
 
 def create_basic_enemy(position):
 	return Tank(position, [
@@ -60,13 +60,11 @@ def create_player(position, loadout):
 		weapons.BeamGun(),		#Second 5 
 		weapons.Flamethrower(),	#Second 6
 		weapons.RocketLauncher(), #Main 7
-		weapons.MissileBarrage(),	#Main 8
-		weapons.GuidedMissileLauncher() #Main 9
 	]
 	count = 0
 	chosen_weapons = []
-	for i in range(10):
-		if loadout[i] and count < 10:
+	for i in range(8):
+		if loadout[i] and count < 8:
 			chosen_weapons.append(all_weapons[i])
 			count += 1
 

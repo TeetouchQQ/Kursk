@@ -14,7 +14,7 @@ from projectile import Bullet, Pellet
 from config import width, height
 from config import Player
 import factories
-from weapons import SniperRifle, MissileBarrage
+from weapons import SniperRifle
 
 from world import World
 
@@ -482,10 +482,7 @@ class PlayerController(Controller):
 	
 		#print(entity.aim_angle)
 		#pygame.mouse.set_pos(self.player_x,self.player_y)
-		if type(entity.weapons[entity.current_weapon]) is MissileBarrage:
-			return entity.position + (target_dir).normalize()
-		else:
-			return entity.position + (target_dir).normalize() #* 1000
+		return entity.position + (target_dir).normalize() #* 1000
 		
 	def die(self, entity, killer):
 		entity.position = Vector2(-1000, -1000)

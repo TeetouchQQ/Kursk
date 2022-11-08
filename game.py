@@ -14,7 +14,7 @@ from pygame import font
 from pytmx.util_pygame import load_pygame
 import pygame
 from collections import OrderedDict
-
+import re
 import pyscroll.data
 from pyscroll.group import PyscrollGroup
 import weapons
@@ -39,7 +39,7 @@ class Game():
 		self.background = (0, 0, 0)
 		self.world = World()
 		#STATE
-		self.paused = False
+		self.paused = True
 		self.main_menu = True
 		self.weapon_select = True
 		self.levelUp = False
@@ -47,7 +47,7 @@ class Game():
 		self.gameOver = False
 		self.showBoard = False
 		self.chosen_weapons = []
-		
+		self.gameStart = False
 
 		self.pygameZoom = PygameZoom(width, height)
 		self.pygameZoom.set_zoom_strength(2)
@@ -81,17 +81,16 @@ class Game():
 		self.keybinds = {
 			(KEYDOWN, K_ESCAPE): sys.exit,
 			(QUIT, None): sys.exit,
-			(KEYDOWN, K_q): pdb.set_trace,
+			#(KEYDOWN, K_q): pdb.set_trace,
 			(KEYDOWN, K_p): self.world.add_enemies,
-			(KEYDOWN, K_o): self.spawn_player,
-			(KEYDOWN, K_F11): self.fullscreen,
-			(KEYDOWN, K_SPACE): self.toggle_pause,
-			(KEYDOWN, K_t): self.start,
-			(KEYDOWN, K_BACKSPACE): self.menu,
+			#(KEYDOWN, K_o): self.spawn_player,
+			#(KEYDOWN, K_F11): self.fullscreen,
+			(KEYDOWN, K_SPACE): self.toggle_pause
+			#(KEYDOWN, K_t): self.start,
+			#(KEYDOWN, K_BACKSPACE): self.menu,
 		}
 
-		for i, key in enumerate([K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0]):
-			self.keybinds[(KEYDOWN, key)] = self.choose_weapon(i)
+
 
 
 	def update(self):
@@ -127,7 +126,12 @@ class Game():
 	def text_objects(self,text,font):
 		textSurface = font.render(text,True,(255,255,255))
 		return textSurface , textSurface.get_rect()
-	
+	def rainFall(self):
+		self.rain = []
+		for q in range(700):
+			x = random.randrange(0,1280)
+			y = random.randrange(0,800)
+			self.rain.append([x,y])
 		
 	def button(self,screen,msg,x,y,w,h,ic,ac,action=None):
 		mouse = pygame.mouse.get_pos()
@@ -148,7 +152,21 @@ class Game():
 		text = self.font1.render(text, False, color)
 		text_rect = text.get_rect(center=(x, y))
 		screen.blit(text, text_rect)
-  
+	def draw_gui(self,screen,entity):
+		pygame.draw.rect(self.zoom_surf,(90,90,90),(0,10,width,height/16))
+		pygame.draw.rect(self.zoom_surf,(255,0,0),(0,10,self.exp_bar,height/16))
+		font=pygame.freetype.SysFont(None, 25)
+		font.origin=True
+		font.render_to(self.zoom_surf, (width/2, 42),'Level '+ str(entity.level),pygame.Color('black'))
+		font.render_to(self.zoom_surf, (50, 130),'Damage : '+ str(entity.damage_bonus),pygame.Color('dodgerblue'))
+		font.render_to(self.zoom_surf, (50, 160),'exp : '+ str(entity.expBonus),pygame.Color('black'))
+		font.render_to(self.zoom_surf, (50, 190),'maxHP : '+ str(entity.max_health),pygame.Color('dodgerblue'))
+		font.render_to(self.zoom_surf, (50, 220),'Weapon : '+ str(entity.weapons[entity.current_weapon].name),pygame.Color('dodgerblue'))
+		font.render_to(self.zoom_surf, (50, 240),'Name : '+ str(self.name2),pygame.Color('dodgerblue'))
+		font=pygame.freetype.SysFont(None, 34)
+		font.origin=True
+		out='{minutes:02d}:{seconds:02d}'.format(minutes=self.minute, seconds=self.sec)
+		font.render_to(self.zoom_surf, (width/2, 100), out,pygame.Color('dodgerblue'))
 	def draw(self, screen):
 		if self.timeStop == False:
 			self.time = time.time()
@@ -170,12 +188,13 @@ class Game():
 					self.exp_bar = entity.exp*(width/entity.exp_perLevel)
 					if self.exp_bar >= width:
 						self.stopStart = time.time()
+						self.rainFall()
 						self.levelUp = True
 						entity.level +=1
 						entity.exp = 0
 						self.timeStop = True
 						self.upAvalible = []
-						if entity.controllers[0].main_weapon < 5:
+						if entity.controllers[0].main_weapon < 3:
 							self.upAvalible.append('Main')
 					
 						if entity.controllers[0].second_weapon < 3:
@@ -199,7 +218,14 @@ class Game():
 			self.zoom_surf = pygame.Surface(zoom_area.size)
 			self.zoom_surf.fill((0,0,0))
 			self.zoom_surf.blit(screen, (0, 0), zoom_area)
+			#self.zoom_surf = pygame.transform.scale2x(self.zoom_surf)
+			game_resolution = (800, 600)
+			#display_resolution = (width, height) # Or use a function to get the real screen res
+			#stretch_to_fit_resolution = ((width^2)/(800), (height[1]^2)/600)
+
 			self.zoom_surf = pygame.transform.scale(self.zoom_surf, (wnd_w, wnd_h))
+
+			
 			#print((self.time - self.startTime) - abs(self.stopEnd - self.stopStart))
 			second = (self.time - self.startTime) - self.toDelTime
 
@@ -232,14 +258,11 @@ class Game():
 			#Debugging
 			
 			#print(ticks)
-			font=pygame.freetype.SysFont(None, 34)
-			font.origin=True
-			out='{minutes:02d}:{seconds:02d}'.format(minutes=self.minute, seconds=self.sec)
-			font.render_to(self.zoom_surf, (width/2, 100), out,pygame.Color('dodgerblue'))
+			
 			#pygame.display.flip()
 
-			pygame.draw.rect(self.zoom_surf,(90,90,90),(0,10,width,height/16))
-			pygame.draw.rect(self.zoom_surf,(255,0,0),(0,10,self.exp_bar,height/16))
+			
+   
 			for entity in self.world.entities:
 				if (isinstance(entity,Tank)) == True:
 					if entity.gameOver == True:
@@ -250,14 +273,8 @@ class Game():
 						#self.draw_GameOver(self.zoom_surf)
 				if entity is self.world.player:
 					#print(self.name2)
-					font=pygame.freetype.SysFont(None, 25)
-					font.origin=True
-					font.render_to(self.zoom_surf, (width/2, 42),'Level '+ str(entity.level),pygame.Color('black'))
-					font.render_to(self.zoom_surf, (50, 130),'Damage : '+ str(entity.damage_bonus),pygame.Color('dodgerblue'))
-					font.render_to(self.zoom_surf, (50, 160),'exp : '+ str(entity.expBonus),pygame.Color('black'))
-					font.render_to(self.zoom_surf, (50, 190),'maxHP : '+ str(entity.max_health),pygame.Color('dodgerblue'))
-					font.render_to(self.zoom_surf, (50, 220),'Weapon : '+ str(entity.weapons[entity.current_weapon].name),pygame.Color('dodgerblue'))
-					font.render_to(self.zoom_surf, (50, 240),'Name : '+ str(self.name2),pygame.Color('dodgerblue'))
+					self.draw_gui(self.zoom_surf,entity)
+					
 			#self.draw_text(self.zoom_surf,"EXP : " +str(self.world.player.), (255,0,0), 70, 50, height/16+10)
 			#self.draw_text(self.zoom_surf,str(self.world.player.level), (0,0,0), 70, 50, height/16+30)
 			#self.draw_text(self.zoom_surf,"KILLS : "+str(self.world.player.level), (255,0,0), 70, 50, height/16+50)
@@ -270,14 +287,14 @@ class Game():
 				if entity is self.world.player:
 					self.draw_levelUp(screen,self.sample_list)
 					print(self.sample_list)
+
 					#self.timeStop = True
 
-		elif self.main_menu == False and self.paused == True and self.levelUp == False:
-			self.draw_pauseScreen(screen)
+		
 			#self.timeStop = True
 		elif self.gameOver == True:
 			self.draw_GameOver(screen)
-			
+		
 			print('GameOver')
 			
 			
@@ -285,7 +302,8 @@ class Game():
 		elif self.main_menu == True:
 			screen.fill(self.background)
 			self.draw_mainMenu(screen)
-   
+		elif self.main_menu == False and self.paused == True and self.levelUp == False and self.gameStart == True:
+			self.draw_pauseScreen(screen)
 		
 		if self.input_name == True:
 			self.draw_CharacterInput(screen)
@@ -324,8 +342,6 @@ class Game():
 		self.timeStop = True
 	def save_name(self):
 		self.input_name = False
-		print('save name')
-		print(self.name2)
 		self.start()
 	def record_score(self):
 		with open('leaderboard.txt', 'a') as the_file:
@@ -397,7 +413,39 @@ class Game():
 		
 		level_bg = pygame.image.load(config.level_bg)
 		level_bg = pygame.transform.scale(level_bg, (1000,600))
-
+  
+		screen.blit(self.map_bg, (0, 0))
+		for entity in self.world.entities:
+				entity.draw(screen)
+			
+				if entity is self.world.player:
+					
+					player_x = self.world.player.position.x
+					player_y = self.world.player.position.y
+   
+		wnd_w, wnd_h = screen.get_size()
+		zoom_size = (round(wnd_w/config.zoom), round(wnd_h/config.zoom))
+		zoom_area = pygame.Rect(0, 0, *zoom_size)
+		zoom_area.center = (player_x, player_y)
+		self.zoom_surf = pygame.Surface(zoom_area.size)
+		self.zoom_surf.fill((0,0,0))
+		self.zoom_surf.blit(screen, (0, 0), zoom_area)
+		self.zoom_surf = pygame.transform.scale(self.zoom_surf, (wnd_w, wnd_h))
+  
+		for entity in self.world.entities:
+			if entity is self.world.player:
+				#print(self.name2)
+				self.draw_gui(self.zoom_surf,entity)
+	    	
+		screen.blit(self.zoom_surf, (0, 0))
+		
+		for i in self.rain:
+			i[1] +=8
+			pygame.draw.rect(screen, (255,255,255), (i, (2, 18)))
+			#pygame.draw.circle(screen,(255,255,255),i,7)
+			if i[1] > 800:
+				i[1] = random.randrange(-50,-5)
+				i[0] = random.randrange(1280)
 		screen.blit(level_bg, (150, 100))
 		#pygame.draw.rect(screen,(0,0,0),(150,50,600,700))
 		font=pygame.freetype.SysFont(None, 70)
@@ -412,10 +460,18 @@ class Game():
 					if sample_list[i] == 'Main':
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
 						font.render_to(screen, ((i*320)+220,250), "Main Weapon",pygame.Color('white'))
+						next = entity.controllers[0].main_idx[(entity.controllers[0].main_weapon)+1]
+						new = entity.weapons[next].name
+						new = re.sub("[\(\[].*?[\)\]]", "", new)
+						font.render_to(screen, ((i*320)+220,300), new,pygame.Color('green'))
 						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Maingun)
 					if sample_list[i] == 'Second':
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
 						font.render_to(screen, ((i*320)+220,250), "Second Weapon",pygame.Color('white'))
+						next = entity.controllers[0].second_idx[(entity.controllers[0].second_weapon)+1]
+						new = entity.weapons[next].name
+						new = re.sub("[\(\[].*?[\)\]]", "", new)
+						font.render_to(screen, ((i*320)+220,300), new,pygame.Color('green'))
 						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Secondgun)
 					if sample_list[i] == 'Damage':
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
@@ -436,12 +492,12 @@ class Game():
 		bg = pygame.transform.scale(bg, (width,height))
 
 		screen.blit(bg, (0, 0))
-		screen.blit(self.textinput.surface, (350, 270))
+		screen.blit(self.textinput.surface, (700, 550))
 		#x = self.textinput.value
 		#self.name = x
 		#self.name2 = self.textinput.value
 		#self.name = value
-		self.button(screen,"LETS GO",350,300,200,90,(255,255,0),(255,0,0),self.save_name)
+		self.button(screen,"LETS GO",700,580,200,90,(0,0,0),(255,0,0),self.save_name)
 	def draw_Board(self,screen):
 		screen.fill((0,0,0))
 		show_dict = {}
@@ -488,16 +544,16 @@ class Game():
 			bg = pygame.transform.scale(bg, (width,height))
 
 			screen.blit(bg, (0, 0))
-			self.button(screen,"START A GAME",750,220,300,90,(0,0,0),(255,0,0),self.toggle_character)
-			self.button(screen,"Leaderboard",750,330,300,90,(0,0,0),(255,0,0),self.toggle_board)
-			self.button(screen,"OPTION",750,440,300,90,(0,0,0),(255,0,0))
-			self.button(screen,"EXIT",750,550,300,90,(0,0,0),(255,0,0))
+			self.button(screen,"START A GAME",750,330,300,90,(0,0,0),(255,0,0),self.toggle_character)
+			self.button(screen,"Leaderboard",750,440,300,90,(0,0,0),(255,0,0),self.toggle_board)
+			self.button(screen,"OPTION",750,550,300,90,(0,0,0),(255,0,0))
+			self.button(screen,"EXIT",750,660,300,90,(0,0,0),(255,0,0),sys.exit)
    
 	def draw_GameOver(self,screen):
 			screen.fill((0,0,0))
 			self.button(screen,"Continue",400,400,200,90,(255,255,0),(255,0,0),self.record_score)
 
-	def draw_box(self, screen, x, y, active, string):
+	def draw_boxก(self, screen, x, y, active, string):
 		draw.rect(screen, (80, 0, 0), (x, y, 110, 20))
 		if active:
 			draw.rect(screen, (255, 0, 0), (x, y, 110, 20))
@@ -512,11 +568,14 @@ class Game():
 		self.showBoard = True
 	def toggle_pause(self):
 		#print(self.paused)
+
+
 		if self.timeStop == False:
 			self.stopStart = time.time()
 		else:
 			self.stopEnd = time.time()
 			self.toDelTime += abs(self.stopEnd - self.stopStart)
+   
 		self.paused = not self.paused
 		self.timeStop = not self.timeStop
   
@@ -546,11 +605,14 @@ class Game():
 		self.startTime  = time.time()
 		self.sec = 0
 		self.minute  =0
-		
+		self.stopStart = time.time()
 		self.main_menu = False
 		self.timeStop == False
+		self.gameStart = True
+		#self.paused = True
 		self.toDelTime = 0
 		num_weapons = 0
+		self.toggle_pause()
 		self.world.add_enemies()
 		for i in range(10):
 			if self.chosen_weapons[i]:
@@ -570,7 +632,7 @@ if __name__ == '__main__':
 	g = Game()
 	clock = pygame.time.Clock()
 	while True:
-		clock.tick(50)
+		clock.tick(144)
 		g.update()		
 		g.draw(screen)        
 		pygame.display.flip()

@@ -4,3 +4,8 @@ player3,2:42
 player4,0:05
 player5,10:42
 lllo,0:55
+dddd,0:16
+kkkk,0:28
+llffff,1:35
+ddddddd,0:13
+,0:11

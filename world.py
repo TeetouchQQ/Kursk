@@ -37,8 +37,7 @@ class World:
 			weapons.BeamGun(),
 			weapons.Flamethrower(),
 			weapons.RocketLauncher(),
-			weapons.MissileBarrage(),
-			weapons.GuidedMissileLauncher()
+
 		]
 
 	def spawn_enemies(self):

@@ -11,12 +11,19 @@ menu_bg = 'bg\Menu_logo.png'
 name_bg = 'bg\input.png'
 level_bg = 'bg\level_bg.png'
 map_bg = 'bg\map.png'
-width, height = 1280, 800
-zoom = 1.8
+width, height = 1500, 1200
+zoom = 1.5
 player_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_dark.png'
 player_turrent = 'resize_asset\\TankRed_barrel.png'
 
 sps = 1
+
+Exp_desc = 'Increase exp gain 10%'
+Dmg_desc = 'Damage increase 10%'
+Health_desc = 'Max health increase 10%'
+
+HIT_BULLET = "Asset_ALL\\PNG\\Retina\\explosion4.png"
+
 
 basic_probs = 0.0
 basic_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_Red.png'

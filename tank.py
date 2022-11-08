@@ -11,7 +11,7 @@ import pygame
 from config import width, height
 from entity import Entity
 from projectile import Projectile, Flame
-
+from damage import DamageNum
 import config
 
 class Tank(Entity):
@@ -23,7 +23,7 @@ class Tank(Entity):
 		#About Upgrade player stats
 		self.level = 1
 		self.health = max_health
-		self.damage_bonus = 10
+		self.damage_bonus = 2
 		self.exp = 0
 		self.exp_perLevel = self.level * 50
 		self.expBonus = 3
@@ -164,6 +164,8 @@ class Tank(Entity):
 	def handle_collision(self, other):
 		if other.projectile or other.hitscan:
 			if other.projectile and not other.penetrate and not other.explosive:
+				damge_number = DamageNum(self.position,size = 2,speed = 1,number = 10)
+				self.spawn.append(damge_number)
 				other.remove = True
 			flame_mod = 1
 			if other.projectile and other.flame:
@@ -192,10 +194,14 @@ class Tank(Entity):
 		else:
 			self.health = max(self.health - 0.1, 0)
 			if self.fire_time % 5 == 0:
-				flame = Flame(Vector2(random.uniform(self.position.x, self.position.x + self.width), random.uniform(self.position.y, self.position.y + self.height)),
-					self.direction.reflect(self.direction), self, damage=0, size=1, speed=3, is_flame=False)
-				self.spawn.append(flame)
-				if self.health <= 0:
-					for die_controller in self.controllers:
-						die_controller.die(self, flame)
-					flame.owner.kills += 1
+				try:
+					flame = Flame(Vector2(random.uniform(self.position.x, self.position.x + self.width), random.uniform(self.position.y, self.position.y + self.height)),self.direction.reflect(self.direction), self, damage=0, size=1, speed=3, is_flame=False)
+					self.spawn.append(flame)
+					if self.health <= 0:
+						for die_controller in self.controllers:
+							die_controller.die(self, flame)
+						flame.owner.kills += 1
+				except:
+					pass
+ 
+				
