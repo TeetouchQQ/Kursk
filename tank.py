@@ -12,11 +12,13 @@ from config import width, height
 from entity import Entity
 from projectile import Projectile, Flame
 from damage import DamageNum
+from Plane import Plane
 import config
 
 class Tank(Entity):
 	def __init__(self, position, controllers, size=20, max_health=20, high_colour=(255, 0, 0), low_colour=(100, 0, 100),
-				collision_radius=10, weapons=[], is_player =False, sprite_coords=((0, 0, 40, 40), (40, 0, 40, 40),(0, 255, 0)),Tanktype = None):
+				collision_radius=10, weapons=[], is_player =False, sprite_coords=((0, 0, 40, 40), (40, 0, 40, 40),(0, 255, 0)),
+    			Tanktype = None, bomb = [] , shield = []):
 		super().__init__(position, sprite_coords=sprite_coords, collision_radius=collision_radius)
 		self.direction = Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize()
   
@@ -27,7 +29,9 @@ class Tank(Entity):
 		self.exp = 0
 		self.exp_perLevel = self.level * 50
 		self.expBonus = 3
-		#==============================================
+		self.planeLevel = 0
+		self.max_Shield = 10
+		#================================================
 
 		self.is_player = is_player
 		self.on_fire = False
@@ -42,6 +46,8 @@ class Tank(Entity):
 		self.low_colour = low_colour
 		self.controllers = controllers
 		self.weapons = weapons
+		self.bomb = bomb
+		self.shield = shield
 		self.current_weapon = 0
 		self.angle = 0
 		self.aim_angle = 90
@@ -163,18 +169,19 @@ class Tank(Entity):
 	
 	def handle_collision(self, other):
 		if other.projectile or other.hitscan:
-			if other.projectile and not other.penetrate and not other.explosive:
-				damge_number = DamageNum(self.position,size = 2,speed = 1,number = 10)
-				self.spawn.append(damge_number)
+			if other.projectile and not other.penetrate and not other.explosive and not other.plane:
 				other.remove = True
 			flame_mod = 1
 			if other.projectile and other.flame:
 				self.on_fire = True
 				self.fire_time = 150
-			if other.explosive and not other.exploding:
+			if other.explosive and not other.exploding and not other.plane:
 				other.explode()	
+			if not self.is_player and not other.minibomb:
+					damge_number = DamageNum(self.position,font_size = 20,speed = 1,number = int((other.damage + other.blast_damage) * other.owner.damage_bonus))
+					self.spawn.append(damge_number)
 
-			self.health = max(self.health - ((other.damage + other.blast_damage) * self.damage_bonus), 0)
+			self.health = max(self.health - ((other.damage + other.blast_damage) * other.owner.damage_bonus), 0)
 			#print(other.damage)
 			if self.health <= 0:
 				for die_controller in self.controllers:
@@ -182,6 +189,7 @@ class Tank(Entity):
 				
 				other.owner.kills += 1
 				other.owner.exp  += 1 * other.owner.expBonus
+				
 				if self.is_player:
 					other.owner.gameOver = True
 

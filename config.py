@@ -11,20 +11,24 @@ menu_bg = 'bg\Menu_logo.png'
 name_bg = 'bg\input.png'
 level_bg = 'bg\level_bg.png'
 map_bg = 'bg\map.png'
-width, height = 1500, 1200
+width, height = 1500, 800
 zoom = 1.5
 player_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_dark.png'
 player_turrent = 'resize_asset\\TankRed_barrel.png'
-
+Shield_img = "resize_asset\\pngegg1.png"
 sps = 1
+
+health_folder = "C:\\Users\\Admin\\Desktop\\Kursk\\resize_asset\\Health\\"
+
 
 Exp_desc = 'Increase exp gain 10%'
 Dmg_desc = 'Damage increase 10%'
 Health_desc = 'Max health increase 10%'
 
 HIT_BULLET = "Asset_ALL\\PNG\\Retina\\explosion4.png"
-
-
+Plane_im = "asset2\\PNG\\Retina\\towerDefense_tile271.png"
+Plane_back = "asset2\\PNG\\Retina\\towerDefense_tile294.png"
+bomb_explo = "Asset_ALL\\PNG\\Retina\\explosion4.png"
 basic_probs = 0.0
 basic_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_Red.png'
 basic_turrent = 'resize_asset\\TankRed_barrel.png'

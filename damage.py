@@ -11,19 +11,18 @@ import config
 from config import width, height
 
 class DamageNum(Entity):
-	def __init__(self, position, size, speed,number):
+	def __init__(self, position, font_size, speed,number):
 		super().__init__(position, collision_radius=5)
 		self.speed = speed
-		self.size = size
-		self.width, self.height = size, size
+
 		self.remove_timer = 15
 		self.showing = True
-		self.font_size = 20
+		self.font_size = font_size
 		
 		self.number = number
   
-		self.position.x += random.uniform(-10, 10)
-		self.position.y += random.uniform(-10, 10)
+		self.position.x += random.uniform(-30, 30)
+		self.position.y += random.uniform(-30, 30)
 	def update(self):
 		if self.showing:
 			self.position.y -= 2 * self.speed

@@ -203,8 +203,10 @@ class Game():
 						self.upAvalible.append('Damage')
 						self.upAvalible.append('Bonus')
 						self.upAvalible.append('Health')
-
-
+      
+						self.upAvalible.append('Plane')
+						self.upAvalible.append('Shield')
+      
 						random.shuffle(self.upAvalible)
 						self.sample_list = self.upAvalible[:3]
 
@@ -407,6 +409,24 @@ class Game():
 		self.timeStop = False
 		self.levelUp = False
   
+	def levelUp_Shield(self):
+		for entity in self.world.entities:
+			if entity is self.world.player:
+				entity.max_Shield  +=1
+		self.stopEnd = time.time()
+		self.toDelTime += abs(self.stopEnd - self.stopStart)
+		self.timeStop = False
+		self.levelUp = False
+  
+	def levelUp_Plane(self):
+		for entity in self.world.entities:
+			if entity is self.world.player:
+				entity.max_Shield  +=1
+		self.stopEnd = time.time()
+		self.toDelTime += abs(self.stopEnd - self.stopStart)
+		self.timeStop = False
+		self.levelUp = False
+  
 	def draw_levelUp(self,screen,sample_list):
 		#print('level up draw')
 		to_up = ['Main','Second','Damage','Bonus','Health']
@@ -485,19 +505,36 @@ class Game():
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
 						font.render_to(screen, ((i*320)+220,250), "Health",pygame.Color('white'))
 						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_health)
-      
+					if sample_list[i] == 'Plane':
+						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
+						font.render_to(screen, ((i*320)+220,250), "Bomber Plane",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Plane)
+					if sample_list[i] == 'Shield':
+						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
+						font.render_to(screen, ((i*320)+220,250), "Eletric Shield",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Shield)
 	#========================= LEVEL ============================================================================
 	def draw_CharacterInput(self,screen):
-		bg = pygame.image.load(config.name_bg)
-		bg = pygame.transform.scale(bg, (width,height))
+     
+     
+		#bg = pygame.image.load(config.name_bg)
+		#bg = pygame.transform.scale(bg, (width,height))
 
-		screen.blit(bg, (0, 0))
-		screen.blit(self.textinput.surface, (700, 550))
-		#x = self.textinput.value
-		#self.name = x
-		#self.name2 = self.textinput.value
-		#self.name = value
+		#screen.blit(bg, (0, 0))
+  
+		screen.fill((0,0,0))
+		font=pygame.freetype.SysFont(None, 50)
+		font.origin=True
+		font.render_to(screen, (200,200), "Enter your name : ",pygame.Color('white'))
+
+		
+  
+		font=pygame.freetype.SysFont(None, 70)
+		font.origin=True
+		screen.blit(self.textinput.surface, (670, 180))
+		self.textinput.font_color = (0, 2, 170)
 		self.button(screen,"LETS GO",700,580,200,90,(0,0,0),(255,0,0),self.save_name)
+  
 	def draw_Board(self,screen):
 		screen.fill((0,0,0))
 		show_dict = {}
@@ -528,8 +565,6 @@ class Game():
 			print(name,show_dict[name])
 			
   			
-
-
 
 		font=pygame.freetype.SysFont(None, 34)
 		font.origin=True

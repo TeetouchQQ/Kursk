@@ -9,12 +9,13 @@ import pygame
 from entity import Entity
 import config
 from config import width, height
-
+import spritesheet
 
 class Projectile(Entity):
 	def __init__(self, position, direction, owner, damage, size, speed):
 		super().__init__(position, collision_radius=5)
 		self.direction = Vector2(direction)
+		self.image = []
 		self.owner = owner
 		self.speed = speed
 		self.damage = damage
@@ -23,9 +24,12 @@ class Projectile(Entity):
 		self.projectile = True
 		self.penetrate = False
 		self.flame = False
+		self.minibomb = False
 		self.explosive = False
+		self.plane = False
 		self.blast_damage = 0
-		#self.image = pygame.image.load(config.bullet_im).convert_alpha()
+		self.angle = 0
+		self.ss
 	def update(self):
 		pass
 
@@ -65,7 +69,7 @@ class Bullet(Projectile):
 		screen.blit(rot_image,rot_rect)
   
 class Pellet(Projectile):
-	def __init__(self, position, direction, owner, damage=2.5, size=1, speed=12):
+	def __init__(self, position, direction, owner, damage=2.5, size=1, speed=12 , font_size = 20):
 		super().__init__(position, direction, owner, damage, size=size, speed=speed)
 		self.collision_radius = size
 		self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
@@ -158,7 +162,7 @@ class Rocket(Projectile):
 		rotate_rect = self.rocket.get_rect(center = ((self.position.x), (self.position.y)))
 		rot_rect = rot_image.get_rect(center=rotate_rect.center)
 		screen.blit(rot_image,rot_rect)
-  
+		
 	def explode(self):
 		self.rocket = pygame.image.load(config.rocket_explosive).convert_alpha()
 		self.rocket = pygame.transform.scale(self.rocket, (40*self.size,40*self.size))
@@ -167,5 +171,202 @@ class Rocket(Projectile):
 		self.speed = 0
 		self.colour = (255, 120, 0)
 		self.exploding = True
+  
+class Shield(Projectile):
+	def __init__(self, position, direction, owner, damage=0, size=7, speed=15, explosive=False):
+		super().__init__(position, direction, owner, damage, size=size, speed=speed)
+  
+		self.collision_radius = size
+		self.direction = Vector2(direction)
+  
+		self.damage= 100
+		self.explosive = explosive
+		self.blast_damage = 100
+		self.exploding = False
+		self.colour = (255, 0, 0)
+		#self.rect.center = (self.position.x,self.position.y)
 		
+
+		#self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
+		self.angle =  0
+		self.owner = owner
+   
+		self.ss = pygame.image.load(config.Shield_img).convert_alpha()
+		
+		self.image1 = self.ss.subsurface(Rect(32,1010,100,120))
+		self.image2 = self.ss.subsurface(Rect(166,1010,100,120))
+		self.image3 = self.ss.subsurface(Rect(287,1010,100,120))
+		self.image4 = self.ss.subsurface(Rect(420,1010,100,120))
+  
+		self.image1 = pygame.transform.scale(self.image1, (35,35))
+		self.image2 = pygame.transform.scale(self.image2, (35,35))
+		self.image3= pygame.transform.scale(self.image3, (35,35))
+		
+		self.image4 = pygame.transform.scale(self.image4, (35,35))
+
+		self.image = []
+		self.image.append(self.image1)
+		self.image.append(self.image2)
+		self.image.append(self.image3)
+		self.image.append(self.image4)
+	
+  
+
+		self.frame = 0
+		#self.image = image
+	def update(self):
+		self.frame += 0.2
+		
+  
+		self.position.x = int(math.cos(self.angle) * 100) + (self.owner.position.x)
+		self.position.y = int(math.sin(self.angle) * 100) + (self.owner.position.y)
+  
+		self.angle += min(max(0.05,(self.speed * 1)),0.5)
+	def draw(self,screen):
+		
+		#print(self.image)
+		pygame.draw.circle(screen, (255,255,255), (self.position.x, self.position.y), 2)
+		screen.blit(self.image[round(self.frame) % 2],(self.position.x-5, self.position.y-5))
+  
+	
+  
+class bombDrop(Projectile):
+	def __init__(self, position, direction, owner, damage=0, size=100, speed=15, explosive=True,angle = 0):
+		super().__init__(position, direction, owner, damage, size=size, speed=speed)
+		self.collision_radius = size
+		self.direction = Vector2(direction)
+		
+		self.damage= 1000
+		self.explosive = explosive
+		self.blast_damage = 1000
+		self.exploding = True
+		self.colour = (255, 0, 0)
+		self.remove_timer = 25
+		self.angle = angle
+		self.minibomb = True
+		if angle == 0:
+			self.position.y -= 200
+			self.position.x -= 20
+			self.position.x += random.uniform(-100, 100)
+		elif angle == 1:
+			self.position.y += 100
+			self.position.x += 20
+			self.position.x += random.uniform(-100, 100)
+		elif angle == 2:
+			self.position.y  -= 50
+			self.position.x -= 100
+			self.position.y += random.uniform(-50, 50)
+		elif angle == 3:
+			self.position.y -= 50
+			self.position.x += 100
+			self.position.y += random.uniform(-50, 50)
+   
+		self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
+		self.rect.center = (self.position.x,self.position.y)
+		
+
+
+		self.imageOri = pygame.image.load(config.bomb_explo).convert_alpha()
+		self.image = self.imageOri
+		self.image = pygame.transform.scale(self.image, (size,size))
+
+		
+	def update(self):
+		
+		self.image = pygame.transform.scale(self.imageOri, (self.size,self.size))
+		self.rect = self.image.get_rect(center = (self.position.x,self.position.y))
+		
+		if self.exploding:
+			self.remove_timer = max(0, self.remove_timer - 1)
+			self.blast_damage = 1000
+			self.size += 2
+			
+		if self.remove_timer == 0:
+			self.remove = True
+   
+	def draw(self, screen):
+		screen.blit(self.image,self.rect)
+
+
+  
+class Plane(Projectile):
+
+	def __init__(self, position, direction, owner, damage=0, size=7, speed=10,angle=0):
+		super().__init__(position, direction, owner, damage, size=size, speed=speed)
+		self.collision_radius = size
+
+		self.width =250
+		self.height = 250
+		self.direction = Vector2(direction)
+		self.plane = True
+		self.blast_damage = 25
+
+		self.colour = (255, 0, 0)
+		self.remove_timer = 150
+  
+		self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
+		self.bomb = True
+		self.plane = pygame.image.load(config.Plane_im).convert_alpha()
+		self.plane = pygame.transform.scale(self.plane , (self.width,self.height))
+		self.plane_back =  pygame.image.load(config.Plane_back).convert_alpha()
+		self.plane_back = pygame.transform.scale(self.plane_back , (self.width,self.height))
+  
+		self.minibomb_cooldown = 5
+		self.minibomb_Maxcooldown = self.minibomb_cooldown
+
+		self.angle =  random.randrange(0, 4)
+		if self.angle == 0:
+			self.direction = Vector2(0,1)
+			self.position.x = self.position.x + random.uniform(-100,100)
+			self.position.y = 0
+			self.plane = pygame.transform.rotate(self.plane , -90)
+			self.plane_back = pygame.transform.rotate(self.plane_back , -90)
+		elif self.angle == 1:
+			self.direction = Vector2(0,-1)
+			self.position.x = self.position.x + random.uniform(-100,100)
+			self.position.y = height
+			self.plane = pygame.transform.rotate(self.plane , 90)
+			self.plane_back = pygame.transform.rotate(self.plane_back , 90)
+		elif self.angle == 2:
+			self.direction = Vector2(1,0)
+			self.position.x = 0
+			self.position.y = self.position.y
+			self.plane = pygame.transform.rotate(self.plane , 0)
+			self.plane_back = pygame.transform.rotate(self.plane_back , 0)
+		elif self.angle == 3:
+			self.direction = Vector2(-1,0)
+			self.position.x = width
+			self.position.y = self.position.y + random.uniform(-100,100)
+			self.plane = pygame.transform.rotate(self.plane , 180)
+			self.plane_back = pygame.transform.rotate(self.plane_back , 180)
+	def update(self):
+		self.remove_timer -= 1
+  
+		self.minibomb_cooldown -= 1
+		if self.minibomb_cooldown <= 0:
+			minibomb = bombDrop(self.position, (0,0), self.owner, damage=0, size=20, speed=15, explosive=True,angle = self.angle)
+			minibomb1 = bombDrop(self.position, (0,0), self.owner, damage=0, size=20, speed=15, explosive=True,angle = self.angle)
+			self.owner.spawn.append(minibomb)
+			self.owner.spawn.append(minibomb1)
+			self.minibomb_cooldown  = self.minibomb_Maxcooldown
+		
+		self.position += self.direction * self.speed
+
+
+		if self.remove_timer == 0:
+			self.remove = True
+
+	def draw(self, screen):
+		screen.blit(self.plane_back,((self.position.x-(self.width/2)-70),(self.position.y-((self.height/2*1.5)))-40))
+		screen.blit(self.plane,(self.position.x-(self.width/2),self.position.y-((self.height/2*1.5))))
+		
+		
+	# def explode(self):
+	# 	self.rocket = pygame.image.load(config.rocket_explosive).convert_alpha()
+	# 	self.rocket = pygame.transform.scale(self.rocket, (40*self.size,40*self.size))
+	# 	self.size = 40
+	# 	self.collision_radius = 50
+	# 	self.speed = 0
+	# 	self.colour = (255, 120, 0)
+	# 	self.exploding = True
 

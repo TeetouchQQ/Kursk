@@ -60,6 +60,7 @@ def create_player(position, loadout):
 		weapons.BeamGun(),		#Second 5 
 		weapons.Flamethrower(),	#Second 6
 		weapons.RocketLauncher(), #Main 7
+		
 	]
 	count = 0
 	chosen_weapons = []
@@ -70,7 +71,10 @@ def create_player(position, loadout):
 
 	return Tank(position, [
 		controllers.PlayerController(speed=4.2),
-	], max_health=config.Player.health, high_colour=(0, 0, 255), low_colour=(0, 0, 255), weapons=chosen_weapons, is_player=True, size=40, collision_radius=15)
+		controllers.PlaneController(),
+		controllers.ShieldController()
+	], max_health=config.Player.health, high_colour=(0, 0, 255), low_colour=(0, 0, 255), weapons=chosen_weapons, is_player=True, size=40, collision_radius=15,
+             bomb = weapons.PlaneBomber(),shield = weapons.ShieldCreater())
 
 def create_healer_enemy(position):
 	return Tank(position, [

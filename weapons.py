@@ -11,10 +11,10 @@ from pygame import font
 from config import width, height
 from entity import Entity
 from hitscanner import SniperShot, Beam
-from projectile import Bullet, Flame, Rocket,Pellet
+from projectile import *
 
 from config import Player
-
+#from Plane import plane
 class Weapon:
 
 	def control(self, entity, target, point, buttons):
@@ -30,6 +30,7 @@ class Weapon:
 		pygame.Surface.blit(screen, name, (x + 7, y + 5))
 
 
+   
 class BasicGun(Weapon):
 
 	def __init__(self, cooldown=50):
@@ -47,9 +48,39 @@ class BasicGun(Weapon):
 			entity.spawn.append(bullet)
 			self.cooldown = self.max_cooldown
 
-
-
-
+class ShieldCreater(Weapon):
+	def __init__(self,cooldown=20):
+		self.cooldown = cooldown
+		self.max_cooldown = cooldown   
+		
+  
+	def control(self,entity,entitites):
+		self.cooldown -=1
+		self.shield_cnt = 0
+		#print(entitites)
+		for ent in entitites:
+			if (isinstance(ent,Shield)) == True:
+				self.shield_cnt +=1
+		print(self.shield_cnt)
+		if self.cooldown <= 0 and self.shield_cnt < entity.max_Shield:
+			shield = Shield((0,0), (0,0), entity, damage=10, size=5,speed = ((entity.max_Shield/10)*0.1))
+			self.cooldown = self.max_cooldown
+			entity.spawn.append(shield)
+   
+class PlaneBomber(Weapon):
+	def __init__(self, cooldown=150):
+		self.cooldown = cooldown
+		self.max_cooldown = cooldown
+		self.name = 'Plane Bomber'
+		self.axis = 1
+	def control(self, entity):
+		self.cooldown -= (1 + (entity.planeLevel*0.1))
+		if self.cooldown <= 0:
+			if self.axis == 1:
+				plane = Plane((entity.position.x,entity.position.y), (1,1), entity, damage=10, size=5)
+			self.cooldown = self.max_cooldown
+			entity.spawn.append(plane)
+   
 class BurstGun(Weapon):
 
 	def __init__(self, cooldown=100, burst_cooldown=2, burst_deviation=1):

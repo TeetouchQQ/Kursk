@@ -357,8 +357,22 @@ class SpawnEnemyController(Controller):
 			enemy = factories.create_basic_enemy(entity.position)
 			entity.spawn.append(enemy)
 			self.spawn_cooldown = self.spawn_time
-
-
+class ShieldController(Controller):
+	def __init__(self,cooldown = 100 , shield = 1):
+		self.cooldown = cooldown
+		self.max_cooldown = cooldown
+	
+	def view_world(self, entity, world):
+		self.entitites = world.entities
+	def control(self,entity):
+		entity.shield.control(entity,self.entitites)
+class PlaneController(Controller):
+	def __init__(self, cooldown=100):	
+		self.max_cooldown = cooldown
+		self.cooldown = cooldown
+	def control(self, entity):
+		entity.bomb.control(entity)
+			
 class PlayerController(Controller):
 
 	def __init__(self, speed=2):
@@ -462,6 +476,9 @@ class PlayerController(Controller):
 		else:
 			entity.current_weapon = self.second_idx[self.second_weapon]
    
+		
+		
+		#print(entity.weapons[8])
 		entity.weapons[entity.current_weapon].control(entity, self.get_aim_direction(entity, pygame.mouse.get_pos()),  pygame.mouse.get_pos(), mouse.get_pressed())
 		if type(entity.weapons[entity.current_weapon]) is SniperRifle:
 			self.speed = 1
