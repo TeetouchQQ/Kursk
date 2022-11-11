@@ -40,11 +40,11 @@ class BasicGun(Weapon):
 
 	def control(self, entity, target, point, buttons):
 		self.cooldown -= 1
-
+		direction = (target - entity.position).normalize()
 		button1, button2, button3 = buttons
 		
 		if button1 and self.cooldown <= 0:
-			bullet = Bullet(entity.position + Vector2(entity.width / 2, entity.height / 2), (target - entity.position).normalize(), entity, damage=10, size=5)
+			bullet = Bullet(entity.position + Vector2(entity.width / 2, entity.height / 2) +direction*35, (target - entity.position).normalize(), entity, damage=10, size=5)
 			entity.spawn.append(bullet)
 			self.cooldown = self.max_cooldown
 
@@ -61,14 +61,14 @@ class ShieldCreater(Weapon):
 		for ent in entitites:
 			if (isinstance(ent,Shield)) == True:
 				self.shield_cnt +=1
-		print(self.shield_cnt)
+		#print(self.shield_cnt)
 		if self.cooldown <= 0 and self.shield_cnt < entity.max_Shield:
 			shield = Shield((0,0), (0,0), entity, damage=10, size=5,speed = ((entity.max_Shield/10)*0.1))
 			self.cooldown = self.max_cooldown
 			entity.spawn.append(shield)
    
 class PlaneBomber(Weapon):
-	def __init__(self, cooldown=150):
+	def __init__(self, cooldown=500):
 		self.cooldown = cooldown
 		self.max_cooldown = cooldown
 		self.name = 'Plane Bomber'
@@ -107,7 +107,7 @@ class BurstGun(Weapon):
 
 		if self.secondary_bullets_left > 0 and self.burst_cooldown <= 0:
 			direction = (target - entity.position).normalize()
-			bullet = Bullet(entity.position + Vector2(entity.width / 2, entity.height / 2), direction.rotate(random.uniform(-self.spread, self.spread)), entity,
+			bullet = Bullet(entity.position + Vector2(entity.width / 2, entity.height / 2) + direction*35 , direction.rotate(random.uniform(-self.spread, self.spread)), entity,
 				damage=2.5, size=2, speed=13)
 			entity.spawn.append(bullet)
 			self.secondary_bullets_left -= 1
@@ -133,7 +133,7 @@ class Shotgun(Weapon):
 		if button1 and self.cooldown <= 0:
 			for i in range(self.pellets):
 				direction = (target - entity.position).normalize()
-				pellet = Pellet(entity.position + Vector2(entity.width / 2, entity.height / 2), direction.rotate(random.uniform(-self.spread, self.spread)), entity,
+				pellet = Pellet(entity.position + Vector2(entity.width / 2, entity.height / 2) + direction*35, direction.rotate(random.uniform(-self.spread, self.spread)), entity,
 					damage=2.65, speed=random.uniform(11, 13))
 				entity.spawn.append(pellet)
 			self.cooldown = self.max_cooldown
@@ -148,10 +148,10 @@ class MachineGun(Weapon):
 		self.spread = 0
 		self.max_deviation = max_deviation
 
-		self.name = 'Machine Gun (%d%%)' % int((self.spread / self.max_deviation) * 100)
-
+		self.name1 = 'Machine Gun (%d%%)' % int((self.spread / self.max_deviation) * 100)
+		self.name = "Machine Gun"
 	def control(self, entity, target, point, buttons):
-		self.name = 'Machine Gun (%d%%)' % int((self.spread / self.max_deviation) * 100)
+		self.name1 = 'Machine Gun (%d%%)' % int((self.spread / self.max_deviation) * 100)
 		self.cooldown -= 1
 		self.spread = max(self.spread - 0.2, 0)
 
@@ -159,7 +159,7 @@ class MachineGun(Weapon):
 
 		if button1 and self.cooldown <= 0:
 			direction = (target - entity.position).normalize()
-			bullet = Bullet(entity.position + Vector2(entity.width/2, entity.height/2), direction.rotate(random.uniform(-self.spread, self.spread)), entity,
+			bullet = Bullet(entity.position + Vector2(entity.width/2, entity.height/2) + direction*35, direction.rotate(random.uniform(-self.spread, self.spread)), entity,
 				damage=1.5, size=1, speed=12)
 			entity.spawn.append(bullet)
 			self.spread = min(self.spread + 1.2, self.max_deviation)
@@ -168,13 +168,13 @@ class MachineGun(Weapon):
 
 class SniperRifle(Weapon):
 
-	def __init__(self, cooldown=200):
+	def __init__(self, cooldown=20):
 		self.max_cooldown = cooldown
 		self.cooldown = 0
-		self.name = 'Sniper Rifle (%d)' % self.cooldown
-
+		self.name1 = 'Sniper Rifle (%d)' % self.cooldown
+		self.name = "Sniper Rifle"
 	def control(self, entity, target, point, buttons):
-		self.name = 'Sniper Rifle (%d)' % self.cooldown
+		self.name1 = 'Sniper Rifle (%d)' % self.cooldown
 		self.cooldown = max(self.cooldown - 1, 0)
 
 		button1, button2, button3 = buttons
@@ -197,9 +197,9 @@ class BeamGun(Weapon):
 		self.cooldown = max(self.cooldown - 1, 0)
 
 		button1, button2, button3 = buttons
-
+		direction = (target - entity.position).normalize()
 		if button1 and self.cooldown <= 0:
-			beam = Beam(entity.position + Vector2(entity.width / 2, entity.height / 2), (target - entity.position).normalize(), entity,
+			beam = Beam(entity.position + Vector2(entity.width / 2, entity.height / 2) + direction*35, (target - entity.position).normalize(), entity,
 					damage=1, colour=(20, 255, 100), width=5, range=200)
 			entity.spawn.append(beam)
 			self.cooldown += 2
@@ -221,10 +221,10 @@ class Flamethrower(Weapon):
 		self.cooldown -= 1
 
 		button1, button2, button3 = buttons
-
+		direction = (target - entity.position).normalize()
 		if button1 and self.cooldown <= 0:
 			#target.rotate_ip(random.uniform(-self.spread, self.spread))
-			fire = Flame(entity.position + Vector2(entity.width/2, entity.height/2), (target - entity.position).normalize(), entity,
+			fire = Flame(entity.position + Vector2(entity.width/2, entity.height/2) + direction*30, (target - entity.position).normalize(), entity,
 				damage=0.6, size=3, speed=10)
 			entity.spawn.append(fire)
 			self.cooldown = self.max_cooldown
@@ -242,9 +242,9 @@ class RocketLauncher(Weapon):
 		self.cooldown -= 1
 
 		button1, button2, button3 = buttons
-
+		direction = (target - entity.position).normalize()
 		if button1 and self.cooldown <= 0:
-			rocket = Rocket(entity.position + Vector2(entity.width/2, entity.height/2), (target - entity.position).normalize(), entity)
+			rocket = Rocket(entity.position + Vector2(entity.width/2, entity.height/2) + direction*35, (target - entity.position).normalize(), entity)
 			#print('NEW 2: ',(target - entity.position).normalize())
 			entity.spawn.append(rocket)
 			self.cooldown = self.max_cooldown

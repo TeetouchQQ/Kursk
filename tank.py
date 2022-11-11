@@ -18,19 +18,19 @@ import config
 class Tank(Entity):
 	def __init__(self, position, controllers, size=20, max_health=20, high_colour=(255, 0, 0), low_colour=(100, 0, 100),
 				collision_radius=10, weapons=[], is_player =False, sprite_coords=((0, 0, 40, 40), (40, 0, 40, 40),(0, 255, 0)),
-    			Tanktype = None, bomb = [] , shield = []):
+    			Tanktype = None, bomb = [] , shield = [] , damage_bonus = 3 ,max_Shield = 0):
 		super().__init__(position, sprite_coords=sprite_coords, collision_radius=collision_radius)
 		self.direction = Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize()
   
 		#About Upgrade player stats
 		self.level = 1
 		self.health = max_health
-		self.damage_bonus = 2
+		self.damage_bonus = damage_bonus
 		self.exp = 0
-		self.exp_perLevel = self.level * 50
-		self.expBonus = 3
+		self.exp_perLevel = self.level * 60
+		self.expBonus = 100
 		self.planeLevel = 0
-		self.max_Shield = 10
+		self.max_Shield = max_Shield
 		#================================================
 
 		self.is_player = is_player
@@ -129,7 +129,6 @@ class Tank(Entity):
 
 		screen.blit(self.rotated_sprite, new_rect)
 		screen.blit(self.rotated_turret_sprite, old_turret_rect)
-		#draw.rect(screen, self.high_colour, self.rect)
 
 		self.draw_health_bar(screen)
 
@@ -177,8 +176,8 @@ class Tank(Entity):
 				self.fire_time = 150
 			if other.explosive and not other.exploding and not other.plane:
 				other.explode()	
-			if not self.is_player and not other.minibomb:
-					damge_number = DamageNum(self.position,font_size = 20,speed = 1,number = int((other.damage + other.blast_damage) * other.owner.damage_bonus))
+			if not self.is_player and not other.minibomb and not other.flame:
+					damge_number = DamageNum(self.position,font_size = 17,speed = 1,number = int((other.damage + other.blast_damage) * other.owner.damage_bonus),color=(0,0,0))
 					self.spawn.append(damge_number)
 
 			self.health = max(self.health - ((other.damage + other.blast_damage) * other.owner.damage_bonus), 0)

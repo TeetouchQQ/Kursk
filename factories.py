@@ -5,49 +5,54 @@ import weapons
 from health_pack import HealthPack
 
 
-def create_basic_enemy(position):
+def create_basic_enemy(position,plevel):
 	return Tank(position, [
 		controllers.BounceMoveController(), 
 		controllers.BasicTargetingController(),
 		controllers.EnemyDieController()
-	],Tanktype='basic')
+	],Tanktype='basic',max_health=(plevel/10)*20,damage_bonus = (plevel/20) + 1)
 
-def create_mothership(position):
+def create_mothership(position,plevel):
 	return Tank(position, [
 		controllers.BounceMoveController(speed=0.4), 
 		controllers.SpawnEnemyController(),
 		controllers.EnemyDieController()
-	], max_health=80, high_colour=(0, 255, 0), low_colour=(0, 100, 100), size=50, collision_radius=25,Tanktype='mothership')
+	], max_health=80, high_colour=(0, 255, 0), low_colour=(0, 100, 100), size=50, collision_radius=25,Tanktype='mothership'
+            ,damage_bonus = (plevel/20) + 1)
 
-def create_light_enemy(position):
+def create_light_enemy(position,plevel):
 	return Tank(position, [
 		controllers.BounceMoveController(speed=2),
 		controllers.LightTargetingController(),
 		controllers.EnemyDieController()
-	], max_health=15, high_colour=(255, 255, 0), low_colour=(0, 100, 0), size=15, collision_radius=14,Tanktype='lightTank')
+	], max_health=15, high_colour=(255, 255, 0), low_colour=(0, 100, 0), size=15, collision_radius=14,Tanktype='lightTank'
+             ,damage_bonus = (plevel/10) + 1)
 
-def create_shotgunner_enemy(position):
+def create_shotgunner_enemy(position,plevel):
 	return Tank(position, [
 		controllers.BounceMoveController(speed=0.5),
 		controllers.PlayerHunterController(speed=2),
 		controllers.ShotgunTargetingController(),
 		controllers.EnemyDieController()
-	], max_health=40, high_colour=(153, 204, 255), low_colour=(100, 100, 0), size=30, collision_radius=20,Tanktype='shotgunner')
+	], max_health=40, high_colour=(153, 204, 255), low_colour=(100, 100, 0), size=30, collision_radius=20,Tanktype='shotgunner'
+             ,damage_bonus = (plevel/10) + 1)
 
-def create_scanner_enemy(position):
+def create_scanner_enemy(position,plevel):
 	return Tank(position, [
 		controllers.BounceMoveController(speed=0.5),
 		controllers.EnemyScannerController(),
 		controllers.EnemyDieController()
-	], max_health=60, high_colour=(0, 255, 200), low_colour=(0, 100, 0), size=50, collision_radius=25,Tanktype='scanner')
+	], max_health=60, high_colour=(0, 255, 200), low_colour=(0, 100, 0), size=50, collision_radius=25,Tanktype='scanner'
+             ,damage_bonus = (plevel/10) + 1)
 
-def create_beamer_enemy(position):
+def create_beamer_enemy(position,plevel):
 	return Tank(position, [
 		controllers.BounceMoveController(speed=0.5),
 		controllers.PlayerHunterController(speed=2, sight_range=400, sprint=2.5),
 		controllers.BeamTargetingController(),
 		controllers.EnemyDieController()
-	], max_health=45, high_colour=(121, 45, 216), low_colour=(102, 21, 86), size=30, collision_radius=20,Tanktype='beamer')
+	], max_health=45, high_colour=(121, 45, 216), low_colour=(102, 21, 86), size=30, collision_radius=20,Tanktype='beamer'
+             ,damage_bonus = (plevel/10) + 1)
 
 
 def create_player(position, loadout):
@@ -84,4 +89,4 @@ def create_healer_enemy(position):
 	], max_health=20, high_colour=(211, 150, 20), low_colour=(135, 63, 41), size=30, collision_radius=15)
 
 def create_health_pack(position):
-	return HealthPack(position)
+	return HealthPack(position,controllers= [controllers.HealthController()])

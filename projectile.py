@@ -173,7 +173,7 @@ class Rocket(Projectile):
 		self.exploding = True
   
 class Shield(Projectile):
-	def __init__(self, position, direction, owner, damage=0, size=7, speed=15, explosive=False):
+	def __init__(self, position, direction, owner, damage=0, size=13, speed=15, explosive=False):
 		super().__init__(position, direction, owner, damage, size=size, speed=speed)
   
 		self.collision_radius = size
@@ -195,20 +195,20 @@ class Shield(Projectile):
 		
 		self.image1 = self.ss.subsurface(Rect(32,1010,100,120))
 		self.image2 = self.ss.subsurface(Rect(166,1010,100,120))
-		self.image3 = self.ss.subsurface(Rect(287,1010,100,120))
-		self.image4 = self.ss.subsurface(Rect(420,1010,100,120))
+		# self.image3 = self.ss.subsurface(Rect(287,1010,100,120))
+		# self.image4 = self.ss.subsurface(Rect(420,1010,100,120))
   
 		self.image1 = pygame.transform.scale(self.image1, (35,35))
 		self.image2 = pygame.transform.scale(self.image2, (35,35))
-		self.image3= pygame.transform.scale(self.image3, (35,35))
+		# self.image3= pygame.transform.scale(self.image3, (35,35))
 		
-		self.image4 = pygame.transform.scale(self.image4, (35,35))
+		# self.image4 = pygame.transform.scale(self.image4, (35,35))
 
 		self.image = []
 		self.image.append(self.image1)
 		self.image.append(self.image2)
-		self.image.append(self.image3)
-		self.image.append(self.image4)
+		# self.image.append(self.image3)
+		# self.image.append(self.image4)
 	
   
 
@@ -225,9 +225,9 @@ class Shield(Projectile):
 	def draw(self,screen):
 		
 		#print(self.image)
-		pygame.draw.circle(screen, (255,255,255), (self.position.x, self.position.y), 2)
-		screen.blit(self.image[round(self.frame) % 2],(self.position.x-5, self.position.y-5))
-  
+		
+		screen.blit(self.image[round(self.frame) % 2],(self.position.x-14, self.position.y-14))
+		pygame.draw.circle(screen, (255,255,255), (self.position.x, self.position.y), self.size)
 	
   
 class bombDrop(Projectile):
@@ -269,8 +269,8 @@ class bombDrop(Projectile):
 		self.imageOri = pygame.image.load(config.bomb_explo).convert_alpha()
 		self.image = self.imageOri
 		self.image = pygame.transform.scale(self.image, (size,size))
-
 		
+
 	def update(self):
 		
 		self.image = pygame.transform.scale(self.imageOri, (self.size,self.size))

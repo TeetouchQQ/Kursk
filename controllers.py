@@ -282,7 +282,7 @@ class EnemyHealerController(Controller):
 
 class EnemyScannerController(Controller):
 
-	def __init__(self, sight_range=999999999999, range=99999999):
+	def __init__(self, sight_range=1000, range=1000):
 		self.sight = sight_range
 		self.range = range
 		self.world_entities = []
@@ -303,8 +303,6 @@ class EnemyScannerController(Controller):
 					enemy.direction = (self.player_position - enemy.position).normalize()
 				if type(entity) != Tank:
 					if (entity.position - enemy.position).length() < 10:
-         
-						
 						enemy.direction.x = 0
 						enemy.direction.y = 0
 
@@ -343,20 +341,37 @@ class BeamTargetingController(Controller):
 			self.damage = min(self.damage + 4, self.max_damage)
 			self.fire_cooldown = self.max_fire_cooldown
 
+class HealthController(Controller):
+	def __int__(self,speed_mod = 1.2,speed = 0.1,range = 1000):
+		self.speed_mod = speed_mod
+		self.speed = speed
+		self.range = range
+	def view_world(self,entity,world):
+		self.entities = world.entities
+		for ent in self.entities:
+				if (isinstance(ent,Tank)) == True  and ent.is_player and (entity.position - ent.position).length() < 100:
+						entity.direction = (entity.position - ent.position).normalize()
+						
 
+	
 class SpawnEnemyController(Controller):
-
-	def __init__(self, spawn_time=180):
+	def __init__(self, spawn_time=1000):
 		self.spawn_time = spawn_time
-
+		self.plevel  = 1
 		self.spawn_cooldown = spawn_time
 
 	def control(self, entity):
 		self.spawn_cooldown -= 1
 		if self.spawn_cooldown <= 0:
-			enemy = factories.create_basic_enemy(entity.position)
+			for ent in self.entities:
+				if (isinstance(ent,Tank)) == True  and ent.is_player:
+					self.plevel  = ent.level
+			enemy = factories.create_basic_enemy(entity.position,self.plevel)
 			entity.spawn.append(enemy)
 			self.spawn_cooldown = self.spawn_time
+	def view_world(self, entity, world):
+		self.entities = world.entities
+		
 class ShieldController(Controller):
 	def __init__(self,cooldown = 100 , shield = 1):
 		self.cooldown = cooldown
@@ -367,7 +382,7 @@ class ShieldController(Controller):
 	def control(self,entity):
 		entity.shield.control(entity,self.entitites)
 class PlaneController(Controller):
-	def __init__(self, cooldown=100):	
+	def __init__(self, cooldown=1000):	
 		self.max_cooldown = cooldown
 		self.cooldown = cooldown
 	def control(self, entity):

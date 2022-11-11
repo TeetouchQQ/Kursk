@@ -10,3 +10,8 @@ llffff,1:35
 ddddddd,0:13
 ,0:11
 fw,0:14
+eew,1:12
+dwd,0:34
+dawdwa,0:7
+dwa,0:6
+daw,0:23

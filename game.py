@@ -63,6 +63,39 @@ class Game():
 
 		self.map_bg = pygame.image.load(config.map_bg)
 		self.map_bg = pygame.transform.scale(self.map_bg, (width,height))
+  
+  
+		self.basicgun_logo = pygame.image.load(config.basicgun_logo)
+		self.burstgun_logo = pygame.image.load(config.burstgun_logo)
+		self.machinegungun_logo = pygame.image.load(config.machinegun_logo)
+		self.shotgun_logo = pygame.image.load(config.shotgun_logo)
+		self.sniper_logo = pygame.image.load(config.sniper_logo)
+		self.beamgun_logo = pygame.image.load(config.beamgun_logo)
+		self.flamegun_logo = pygame.image.load(config.flamethrower_logo)
+		self.rocketlauncher = pygame.image.load(config.rocketlauncher_logo)
+
+
+		self.health_logo = pygame.image.load(config.health_logo)
+		self.damage_logo = pygame.image.load(config.damage_logo)
+		self.exp_logo = pygame.image.load(config.exp_logo)
+		self.plane_logo = pygame.image.load(config.plane_logo)
+		self.shield_logo = pygame.image.load(config.shield_logo)
+  
+		
+  
+		self.logo_size = 200
+
+		self.basicgun_logo = pygame.transform.scale(self.basicgun_logo, (self.logo_size, self.logo_size))
+		self.burstgun_logo = pygame.transform.scale(self.burstgun_logo, (self.logo_size, self.logo_size))
+		self.shotgun_logo = pygame.transform.scale(self.shotgun_logo, (self.logo_size, self.logo_size))
+		self.machinegungun_logo = pygame.transform.scale(self.machinegungun_logo, (self.logo_size, self.logo_size))
+		self.sniper_logo = pygame.transform.scale(self.sniper_logo, (self.logo_size, self.logo_size))
+		self.beamgun_logo = pygame.transform.scale(self.beamgun_logo, (self.logo_size, self.logo_size))
+		self.flamegun_logo = pygame.transform.scale(self.flamegun_logo, (self.logo_size, self.logo_size))
+		self.rocketlauncher = pygame.transform.scale(self.rocketlauncher, (self.logo_size, self.logo_size))
+  
+  
+
 		##TIME
 		self.timeStop = False
 		self.startTime = 0
@@ -75,6 +108,7 @@ class Game():
 		self.sec = 0
 		self.minute  =0
 		self.font1 = pygame.font.Font('8-BIT WONDER.TTF',20)
+  
 		for i in range(10):
 			self.chosen_weapons.append(True)
 
@@ -167,6 +201,27 @@ class Game():
 		font.origin=True
 		out='{minutes:02d}:{seconds:02d}'.format(minutes=self.minute, seconds=self.sec)
 		font.render_to(self.zoom_surf, (width/2, 100), out,pygame.Color('dodgerblue'))
+  
+		#print(entity.weapons[entity.current_weapon].name)
+		if entity.weapons[entity.current_weapon].name == "Basic Gun":
+			screen.blit(self.basicgun_logo,(100,50))
+		elif entity.weapons[entity.current_weapon].name == "Burst Gun":
+			screen.blit(self.burstgun_logo,(100,50))
+		elif entity.weapons[entity.current_weapon].name == "Shotgun":
+			screen.blit(self.shotgun_logo,(100,50))
+		elif entity.weapons[entity.current_weapon].name == "Machine Gun":
+			screen.blit(self.machinegungun_logo,(100,50))
+		elif entity.weapons[entity.current_weapon].name == "Sniper Rifle":
+			screen.blit(self.sniper_logo,(100,50))
+		elif entity.weapons[entity.current_weapon].name == "Beam Gun":
+			screen.blit(self.beamgun_logo,(100,50))
+		elif entity.weapons[entity.current_weapon].name == "Flamethrower":
+			screen.blit(self.flamegun_logo,(100,50))
+		elif entity.weapons[entity.current_weapon].name == "Rocket Launcher":
+			screen.blit(self.rocketlauncher,(100,50))
+		#DRAW GUN
+
+		
 	def draw(self, screen):
 		if self.timeStop == False:
 			self.time = time.time()
@@ -191,7 +246,9 @@ class Game():
 						self.rainFall()
 						self.levelUp = True
 						entity.level +=1
+						self.level = entity.level
 						entity.exp = 0
+				
 						self.timeStop = True
 						self.upAvalible = []
 						if entity.controllers[0].main_weapon < 3:
@@ -212,7 +269,7 @@ class Game():
 
 					
 			#900 + 700 /2
-			
+	
 			wnd_w, wnd_h = screen.get_size()
 			zoom_size = (round(wnd_w/config.zoom), round(wnd_h/config.zoom))
 			zoom_area = pygame.Rect(0, 0, *zoom_size)
@@ -220,10 +277,7 @@ class Game():
 			self.zoom_surf = pygame.Surface(zoom_area.size)
 			self.zoom_surf.fill((0,0,0))
 			self.zoom_surf.blit(screen, (0, 0), zoom_area)
-			#self.zoom_surf = pygame.transform.scale2x(self.zoom_surf)
-			game_resolution = (800, 600)
-			#display_resolution = (width, height) # Or use a function to get the real screen res
-			#stretch_to_fit_resolution = ((width^2)/(800), (height[1]^2)/600)
+	
 
 			self.zoom_surf = pygame.transform.scale(self.zoom_surf, (wnd_w, wnd_h))
 
@@ -235,43 +289,33 @@ class Game():
 			self.minute = math.floor(second / 60)
    
 			if config.sps % 1 == 0 and self.last_sec != self.sec:
-				if pr.prob(config.mothership_probs):
-					self.world.spawn_Mothership(2)
+				if pr.prob(config.mothership_probs + (self.level / 1000)):
+					self.world.spawn_Mothership(round(1 + round(self.level / 200)),self.level)
 					
-				if pr.prob(config.lighttank_probs):
-					self.world.spawn_lightTank(2)
+				if pr.prob(config.lighttank_probs + (self.level / 900)):
+					self.world.spawn_lightTank(round(1 + round(self.level / 80)),self.level)
 					
-				if pr.prob(config.shotgun_probs):
-					self.world.spawn_Beamer(2)
+				if pr.prob(config.shotgun_probs + (self.level / 900)): 
+					self.world.spawn_Beamer(round(1 + round(self.level / 80)),self.level)
 					
-				if pr.prob(config.scanner_probs):
-					self.world.spawn_Scanner(2)
+				if pr.prob(config.scanner_probs + (self.level / 900)):
+					self.world.spawn_Scanner(round(1 + round(self.level / 80)),self.level)
 					
-				if pr.prob(config.shotgun_probs):
-					self.world.spawn_Shotgun(2) 
+				if pr.prob(config.shotgun_probs + (self.level / 900)):
+					self.world.spawn_Shotgun(round(1 + round(self.level / 80)),self.level) 
      
-				if pr.prob(config.basic_probs):
-					self.world.spawn_basic(2) 
+				if pr.prob(config.basic_probs + (self.level / 900)):
+					self.world.spawn_basic(round(1 + round(self.level / 80)),self.level)
 				self.last_sec = self.sec
 				
-    
-			#print(minute)
-			#print(abs(self.stopEnd - self.stopStart))
-			#Debugging
-			
-			#print(ticks)
-			
-			#pygame.display.flip()
 
-			
    
 			for entity in self.world.entities:
 				if (isinstance(entity,Tank)) == True:
 					if entity.gameOver == True:
 						self.gameOver = True
 						print('Save GAME')
-						print(self.sec)
-						print(self.minute)
+
 						#self.draw_GameOver(self.zoom_surf)
 				if entity is self.world.player:
 					#print(self.name2)
@@ -288,7 +332,6 @@ class Game():
 			for entity in self.world.entities:
 				if entity is self.world.player:
 					self.draw_levelUp(screen,self.sample_list)
-					print(self.sample_list)
 
 					#self.timeStop = True
 
@@ -310,9 +353,9 @@ class Game():
 		if self.input_name == True:
 			self.draw_CharacterInput(screen)
 			if len(self.textinput.value) > 1:
-				print(len(self.textinput.value))
+				#print(len(self.textinput.value))
 				self.name2 = self.textinput.value
-				print(self.name2)
+				#print(self.name2)
 		if self.showBoard == True:
 			self.draw_Board(screen)
 			
@@ -403,7 +446,7 @@ class Game():
 		for entity in self.world.entities:
 			if entity is self.world.player:
 				entity.max_health +=1
-				entity.max_health *= 1.1
+				entity.max_health *= 1.05
 		self.stopEnd = time.time()
 		self.toDelTime += abs(self.stopEnd - self.stopStart)
 		self.timeStop = False
@@ -485,6 +528,37 @@ class Game():
 						new = re.sub("[\(\[].*?[\)\]]", "", new)
 						font.render_to(screen, ((i*320)+220,300), new,pygame.Color('green'))
 						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Maingun)
+						logo_x = (i*320)+219
+						logo_y =  300
+						show_size = 200
+      
+						print(new)
+						if new == "Basic Gun":
+							self.basicgun_logo = pygame.transform.scale(self.basicgun_logo, (show_size, show_size))
+							screen.blit(self.basicgun_logo,(logo_x,logo_y))
+						elif new == "Burst Gun":
+							self.burstgun_logo = pygame.transform.scale(self.burstgun_logo, (show_size, show_size))
+							screen.blit(self.burstgun_logo,(logo_x,logo_y))
+						elif new == "Shotgun":
+							self.shotgun_logo = pygame.transform.scale(self.shotgun_logo, (show_size, show_size))
+							screen.blit(self.shotgun_logo,(logo_x,logo_y))
+						elif new == "Machine Gun":
+							self.machinegungun_logo = pygame.transform.scale(self.machinegungun_logo, (show_size, show_size))
+							screen.blit(self.machinegungun_logo,(logo_x,logo_y))
+						elif new == "Sniper Rifle":
+							self.sniper_logo = pygame.transform.scale(self.sniper_logo, (show_size, show_size))
+							screen.blit(self.sniper_logo,(logo_x,logo_y))
+						elif new == "Beam Gun":
+							self.beamgun_logo = pygame.transform.scale(self.beamgun_logo, (show_size, show_size))
+							screen.blit(self.beamgun_logo,(logo_x,logo_y))
+						elif new == "Flamethrower":
+							self.flamegun_logo = pygame.transform.scale(self.flamegun_logo, (show_size, show_size))
+							screen.blit(self.flamegun_logo,(logo_x,logo_y))
+						elif new == "Rocket Launcher":
+							self.rocketlauncher = pygame.transform.scale(self.rocketlauncher, (show_size, show_size))
+							screen.blit(self.rocketlauncher,(logo_x,logo_y))
+       
+       
 					if sample_list[i] == 'Second':
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
 						font.render_to(screen, ((i*320)+220,250), "Second Weapon",pygame.Color('white'))
@@ -493,26 +567,101 @@ class Game():
 						new = re.sub("[\(\[].*?[\)\]]", "", new)
 						font.render_to(screen, ((i*320)+220,300), new,pygame.Color('green'))
 						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Secondgun)
+      
+						logo_x = (i*320)+225
+						logo_y =  300
+						show_size = 200
+      
+						print(new)
+						if new == "Basic Gun":
+							self.basicgun_logo = pygame.transform.scale(self.basicgun_logo, (show_size, show_size))
+							screen.blit(self.basicgun_logo,(logo_x,logo_y))
+						elif new == "Burst Gun":
+							self.burstgun_logo = pygame.transform.scale(self.burstgun_logo, (show_size, show_size))
+							screen.blit(self.burstgun_logo,(logo_x,logo_y))
+						elif new == "Shotgun":
+							self.shotgun_logo = pygame.transform.scale(self.shotgun_logo, (show_size, show_size))
+							screen.blit(self.shotgun_logo,(logo_x,logo_y))
+						elif new == "Machine Gun":
+							self.machinegungun_logo = pygame.transform.scale(self.machinegungun_logo, (show_size, show_size))
+							screen.blit(self.machinegungun_logo,(logo_x,logo_y))
+						elif new == "Sniper Rifle":
+							self.sniper_logo = pygame.transform.scale(self.sniper_logo, (show_size, show_size))
+							screen.blit(self.sniper_logo,(logo_x,logo_y))
+						elif new == "Beam Gun":
+							self.beamgun_logo = pygame.transform.scale(self.beamgun_logo, (show_size, show_size))
+							screen.blit(self.beamgun_logo,(logo_x,logo_y))
+						elif new == "Flamethrower":
+							self.flamegun_logo = pygame.transform.scale(self.flamegun_logo, (show_size, show_size))
+							screen.blit(self.flamegun_logo,(logo_x,logo_y))
+						elif new == "Rocket Launcher":
+							self.rocketlauncher = pygame.transform.scale(self.rocketlauncher, (show_size, show_size))
+							screen.blit(self.rocketlauncher,(logo_x,logo_y))
+       
 					if sample_list[i] == 'Damage':
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
 						font.render_to(screen, ((i*320)+220,250), "Damage",pygame.Color('white'))
 						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_damage)
+
+						logo_x = (i*320)+225
+						logo_y = 300
+						show_size = 200
+      
+						self.damage_logo = pygame.transform.scale(self.damage_logo, (show_size, show_size))
+						screen.blit(self.damage_logo,(logo_x,logo_y))
+      
 					if sample_list[i] == 'Bonus':
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
 						font.render_to(screen, ((i*320)+220,250), "Exp Bonus",pygame.Color('white'))
 						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Exp)
+
+						logo_x = (i*320)+225
+						logo_y = 300
+						show_size = 200
+      
+						self.exp_logo = pygame.transform.scale(self.exp_logo, (show_size, show_size))
+						screen.blit(self.exp_logo,(logo_x,logo_y))
+      
 					if sample_list[i] == 'Health':
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
 						font.render_to(screen, ((i*320)+220,250), "Health",pygame.Color('white'))
 						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_health)
+      
+						logo_x = (i*320)+225
+						logo_y = 300
+						show_size = 200
+      
+						self.health_logo = pygame.transform.scale(self.health_logo, (show_size, show_size))
+						screen.blit(self.health_logo,(logo_x,logo_y))
+      
 					if sample_list[i] == 'Plane':
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
 						font.render_to(screen, ((i*320)+220,250), "Bomber Plane",pygame.Color('white'))
-						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Plane)
+						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_health)
+
+						logo_x = (i*320)+225
+						logo_y = 300
+						show_size = 200
+      
+						self.plane_logo = pygame.transform.scale(self.plane_logo, (show_size, show_size))
+						screen.blit(self.plane_logo,(logo_x,logo_y))
+      
+
 					if sample_list[i] == 'Shield':
+         
+				
+      
 						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
 						font.render_to(screen, ((i*320)+220,250), "Eletric Shield",pygame.Color('white'))
 						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Shield)
+      
+      
+						logo_x = (i*320)+225
+						logo_y = 300
+						show_size = 200
+      
+						self.shield_logo = pygame.transform.scale(self.shield_logo, (show_size, show_size))
+						screen.blit(self.shield_logo,(logo_x,logo_y))
 	#========================= LEVEL ============================================================================
 	def draw_CharacterInput(self,screen):
      
@@ -562,7 +711,7 @@ class Game():
 			font.render_to(screen, (400, (i*90) + 120),name,pygame.Color('green'))
 			font.render_to(screen, (800, (i*90) + 120),show_dict[name].replace(' ',''),pygame.Color('white'))
 			self.button(screen,"MENU",600,650,150,90,(0,0,0),(255,0,0),self.menu)
-			print(name,show_dict[name])
+			#print(name,show_dict[name])
 			
   			
 
@@ -648,7 +797,7 @@ class Game():
 		self.toDelTime = 0
 		num_weapons = 0
 		self.toggle_pause()
-		self.world.add_enemies()
+		self.world.add_enemies(1)
 		for i in range(10):
 			if self.chosen_weapons[i]:
 				num_weapons += 1
@@ -667,7 +816,8 @@ if __name__ == '__main__':
 	g = Game()
 	clock = pygame.time.Clock()
 	while True:
-		clock.tick(144)
+		clock.tick()
+		#print (clock.get_fps())
 		g.update()		
 		g.draw(screen)        
 		pygame.display.flip()
