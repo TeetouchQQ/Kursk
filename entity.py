@@ -17,7 +17,7 @@ class Entity:
 
 		#self.rect = pygame.Rect(self.position.x,self.position.y,collision_radius,collision_radius)
 		
-		self.ss = spritesheet.spritesheet(('Sprites.png', 'Basic Turret.png'))
+		self.ss = []
 		self.sprite_coords = sprite_coords
 		self.sprite = self.get_sprite()
 		self.rotated_sprite = self.sprite
@@ -42,8 +42,8 @@ class Entity:
 		pass
 
 	def get_sprite(self):
-		#pass
-		return self.ss.image_at(self.ss.body_sheet, self.sprite_coords[0], self.sprite_coords[2])
+		pass
+		#return self.ss.image_at(self.ss.body_sheet, self.sprite_coords[0], self.sprite_coords[2])
 
 	def view_world(self, world):
 		pass

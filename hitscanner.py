@@ -108,7 +108,7 @@ class SniperShot(HitScanner):
 		self.frame = 0
 		self.timer = 20
 	def update(self):
-		self.frame += 0.25
+		self.frame += 0.15
   
 		if self.timer == 2:
 			self.damage = 0

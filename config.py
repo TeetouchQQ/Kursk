@@ -11,8 +11,10 @@ menu_bg = 'bg\Menu_logo.png'
 name_bg = 'bg\input.png'
 level_bg = 'bg\level_bg.png'
 map_bg = 'bg\map.png'
-width, height = 1500, 800
-zoom = 1.3
+levelup_bg = "logo\\levelUP_logo.png"
+pause_logo = "logo\\pause_logo.png"
+width, height = 1560, 900
+zoom = 1.4
 
 player_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_dark_outline.png'
 player_turrent = 'resize_asset\\specialBarrel3_outline.png'
@@ -78,12 +80,12 @@ class EasyDifficulty:
 	num_scanner_enemies = 1
 	speed_mod = 1
 
-basicgun_logo = "logo\\rocketlauncher_Logo.png"
+basicgun_logo = "logo\\baiscgun_logo.png"
 burstgun_logo = "logo\\burstgun_logo.png"
 shotgun_logo = "logo\shotgun_Logo.png"
 machinegun_logo ="logo\\Minigun_Logo.png"
-sniper_logo = "logo\\rocketlauncher_Logo.png"
-beamgun_logo = "logo\\rocketlauncher_Logo.png"
+sniper_logo = "logo\\megabeam_logo.png"
+beamgun_logo = "logo\\beamgun_Logo.png"
 flamethrower_logo = "logo\\FlameThrower_Logo.png"
 rocketlauncher_logo = "logo\\rocketlauncher_Logo.png"
 

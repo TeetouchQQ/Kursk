@@ -172,7 +172,7 @@ class SniperRifle(Weapon):
 		self.max_cooldown = cooldown
 		self.cooldown = 0
 		self.name1 = 'Sniper Rifle (%d)' % self.cooldown
-		self.name = "Sniper Rifle"
+		self.name = "Mega Beam"
 	def control(self, entity, target, point, buttons):
 		self.name1 = 'Sniper Rifle (%d)' % self.cooldown
 		self.cooldown = max(self.cooldown - 1, 0)

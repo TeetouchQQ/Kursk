@@ -15,3 +15,10 @@ dwd,0:34
 dawdwa,0:7
 dwa,0:6
 daw,0:23
+dwad,1:14
+dawd,1:52
+dawd,0:0
+awd,0:1
+dwad,0:1
+dwa,0:22
+daw,4:26

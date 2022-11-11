@@ -38,7 +38,9 @@ class EnemyDieController(Controller):
 	def die(self, entity, killer):
 		if not entity.is_player and killer.owner.is_player:
 			health_pack = factories.create_health_pack(entity.position)
+
 			entity.spawn.append(health_pack)
+			entity.remove = True
 		entity.remove = True
 
 
@@ -400,7 +402,7 @@ class PlayerController(Controller):
 		self.main_select = True
 		self.main_idx = [0,2,4,7,8,9]
 		self.second_idx = [1,3,5,6]
-		self.main_weapon = 0
+		self.main_weapon = 1
 		self.second_weapon = 0
 		self.mouse_x = mouse.get_pos()[0]
 		self.mouse_y = mouse.get_pos()[1]

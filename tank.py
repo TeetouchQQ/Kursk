@@ -28,7 +28,7 @@ class Tank(Entity):
 		self.damage_bonus = damage_bonus
 		self.exp = 0
 		self.exp_perLevel = self.level * 60
-		self.expBonus = 100
+		self.expBonus = 1
 		self.planeLevel = 0
 		self.max_Shield = max_Shield
 		#================================================

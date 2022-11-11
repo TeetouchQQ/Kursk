@@ -93,9 +93,12 @@ class Game():
 		self.beamgun_logo = pygame.transform.scale(self.beamgun_logo, (self.logo_size, self.logo_size))
 		self.flamegun_logo = pygame.transform.scale(self.flamegun_logo, (self.logo_size, self.logo_size))
 		self.rocketlauncher = pygame.transform.scale(self.rocketlauncher, (self.logo_size, self.logo_size))
-  
-  
 
+		self.levelUp_bg = pygame.image.load(config.levelup_bg)
+		self.levelUp_bg = pygame.transform.scale(self.levelUp_bg, (300, 300))
+  
+		self.pause_logo =pygame.image.load(config.pause_logo)
+		self.pause_logo = pygame.transform.scale(self.pause_logo, (300, 150))
 		##TIME
 		self.timeStop = False
 		self.startTime = 0
@@ -108,7 +111,7 @@ class Game():
 		self.sec = 0
 		self.minute  =0
 		self.font1 = pygame.font.Font('8-BIT WONDER.TTF',20)
-  
+		self.font2 = pygame.font.SysFont(None, 35)
 		for i in range(10):
 			self.chosen_weapons.append(True)
 
@@ -163,7 +166,7 @@ class Game():
 	def rainFall(self):
 		self.rain = []
 		for q in range(700):
-			x = random.randrange(0,1280)
+			x = random.randrange(0,config.width)
 			y = random.randrange(0,800)
 			self.rain.append([x,y])
 		
@@ -187,16 +190,19 @@ class Game():
 		text_rect = text.get_rect(center=(x, y))
 		screen.blit(text, text_rect)
 	def draw_gui(self,screen,entity):
-		pygame.draw.rect(self.zoom_surf,(90,90,90),(0,10,width,height/16))
-		pygame.draw.rect(self.zoom_surf,(255,0,0),(0,10,self.exp_bar,height/16))
+     
+		pygame.draw.rect(self.zoom_surf,(255,255,255),(0,0,self.exp_bar,30))
+		pygame.draw.rect(self.zoom_surf,(33,29,52,255),(0,22,width,30))
+		
+		pygame.draw.rect(self.zoom_surf,(129,255,8),(0,22,self.exp_bar,25))
+		pygame.draw.rect(self.zoom_surf,(104,192,30),(0,30,self.exp_bar,20))
+  
 		font=pygame.freetype.SysFont(None, 25)
 		font.origin=True
-		font.render_to(self.zoom_surf, (width/2, 42),'Level '+ str(entity.level),pygame.Color('black'))
-		font.render_to(self.zoom_surf, (50, 130),'Damage : '+ str(entity.damage_bonus),pygame.Color('dodgerblue'))
-		font.render_to(self.zoom_surf, (50, 160),'exp : '+ str(entity.expBonus),pygame.Color('black'))
-		font.render_to(self.zoom_surf, (50, 190),'maxHP : '+ str(entity.max_health),pygame.Color('dodgerblue'))
-		font.render_to(self.zoom_surf, (50, 220),'Weapon : '+ str(entity.weapons[entity.current_weapon].name),pygame.Color('dodgerblue'))
-		font.render_to(self.zoom_surf, (50, 240),'Name : '+ str(self.name2),pygame.Color('dodgerblue'))
+
+
+  
+		#font.render_to(self.zoom_surf, (50, 240),'Name : '+ str(self.name2),pygame.Color('dodgerblue'))
 		font=pygame.freetype.SysFont(None, 34)
 		font.origin=True
 		out='{minutes:02d}:{seconds:02d}'.format(minutes=self.minute, seconds=self.sec)
@@ -211,7 +217,7 @@ class Game():
 			screen.blit(self.shotgun_logo,(100,50))
 		elif entity.weapons[entity.current_weapon].name == "Machine Gun":
 			screen.blit(self.machinegungun_logo,(100,50))
-		elif entity.weapons[entity.current_weapon].name == "Sniper Rifle":
+		elif entity.weapons[entity.current_weapon].name == "Mega Beam":
 			screen.blit(self.sniper_logo,(100,50))
 		elif entity.weapons[entity.current_weapon].name == "Beam Gun":
 			screen.blit(self.beamgun_logo,(100,50))
@@ -348,8 +354,9 @@ class Game():
 			screen.fill(self.background)
 			self.draw_mainMenu(screen)
 		elif self.main_menu == False and self.paused == True and self.levelUp == False and self.gameStart == True:
+			
+			
 			self.draw_pauseScreen(screen)
-		
 		if self.input_name == True:
 			self.draw_CharacterInput(screen)
 			if len(self.textinput.value) > 1:
@@ -497,42 +504,68 @@ class Game():
   
 		for entity in self.world.entities:
 			if entity is self.world.player:
+				ent = entity
 				#print(self.name2)
 				self.draw_gui(self.zoom_surf,entity)
-	    	
+
+				#name = self.font1.render("John Hubbard", True, (0,0,255))
+				
+				#self.font2.render(self.zoom_surf, (50, 220),'Weapon : '+ str(entity.weapons[entity.current_weapon].name),pygame.Color('dodgerblue'))
+		#pygame.draw.rect(self.zoom_surf,(255,255,255),(20,230,200,400))		
+		nnamme = self.font2.render('Name : '+ str(self.name2),True,(0,0,0))
+		Dmg_bonus = self.font2.render('Damage : '+ str(ent.damage_bonus*100) + "%",True,(0,0,0))
+		Exp_bonus = self.font2.render('Exp bonus : '+ str(ent.expBonus*100) + "%",True,(0,0,0))
+		maxHP = self.font2.render('maxHP : '+ str(ent.max_health),True,(0,0,0))
+		Shield = self.font2.render('Shield : '+ str(ent.max_Shield),True,(0,0,0))
+		pplane = self.font2.render('Plane CD : -'+ str(ent.planeLevel*10) + "%",True,(0,0,0))
+		fire_res = self.font2.render('Fire resist : '+ str(ent.fire_resist) + "%",True,(0,0,0))
 		screen.blit(self.zoom_surf, (0, 0))
 		
 		for i in self.rain:
 			i[1] +=8
 			pygame.draw.rect(screen, (255,255,255), (i, (2, 18)))
 			#pygame.draw.circle(screen,(255,255,255),i,7)
-			if i[1] > 800:
+			if i[1] > 850:
 				i[1] = random.randrange(-50,-5)
-				i[0] = random.randrange(1280)
-		screen.blit(level_bg, (150, 100))
-		#pygame.draw.rect(screen,(0,0,0),(150,50,600,700))
-		font=pygame.freetype.SysFont(None, 70)
-		font.origin=True
-			
-		font.render_to(screen, (500, 170), 'Level Up',pygame.Color('green'))
-		font=pygame.freetype.SysFont(None, 34)
-		font.origin=True
+				i[0] = random.randrange(config.width)
+    
+		
+  
+		screen.blit(level_bg, (300, 165))
+		screen.blit(self.levelUp_bg,(670,30))
+		
+		# screen.blit(nnamme, (40,260))
+		# screen.blit(Dmg_bonus, (40,290))
+		# screen.blit(Exp_bonus, (40,320))
+		# screen.blit(maxHP, (40,350))
+		# screen.blit(Shield, (40,380))
+		# screen.blit(pplane, (40,410))
+		# screen.blit(fire_res, (40,440))
+  
+		font_Desc=pygame.freetype.SysFont(None, 20)
+		font_Desc.origin=True
+  
 		for entity in self.world.entities:
 			if entity is self.world.player:
 				for i in range(len(sample_list)):
 					if sample_list[i] == 'Main':
-						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
-						font.render_to(screen, ((i*320)+220,250), "Main Weapon",pygame.Color('white'))
+						
+						pygame.draw.rect(screen,(0,0,0),((i*320)+365,300,250,400))
+      
+						font=pygame.freetype.SysFont(None, 34)
+						font.origin=True
+      
+						font.render_to(screen, ((i*320)+385,350), "Main Slot",pygame.Color('white'))
 						next = entity.controllers[0].main_idx[(entity.controllers[0].main_weapon)+1]
 						new = entity.weapons[next].name
 						new = re.sub("[\(\[].*?[\)\]]", "", new)
-						font.render_to(screen, ((i*320)+220,300), new,pygame.Color('green'))
-						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Maingun)
-						logo_x = (i*320)+219
-						logo_y =  300
+
+						font.render_to(screen, ((i*320)+385,400), new,pygame.Color('green'))
+						self.button(screen,"Upgrade",(i*320)+390,600,200,80,(130,255,0),(255,0,0),self.levelUp_Maingun)
+						logo_x = (i*320)+385
+						logo_y =  410
 						show_size = 200
       
-						print(new)
 						if new == "Basic Gun":
 							self.basicgun_logo = pygame.transform.scale(self.basicgun_logo, (show_size, show_size))
 							screen.blit(self.basicgun_logo,(logo_x,logo_y))
@@ -545,7 +578,7 @@ class Game():
 						elif new == "Machine Gun":
 							self.machinegungun_logo = pygame.transform.scale(self.machinegungun_logo, (show_size, show_size))
 							screen.blit(self.machinegungun_logo,(logo_x,logo_y))
-						elif new == "Sniper Rifle":
+						elif new == "Mega Beam":
 							self.sniper_logo = pygame.transform.scale(self.sniper_logo, (show_size, show_size))
 							screen.blit(self.sniper_logo,(logo_x,logo_y))
 						elif new == "Beam Gun":
@@ -560,19 +593,28 @@ class Game():
        
        
 					if sample_list[i] == 'Second':
-						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
-						font.render_to(screen, ((i*320)+220,250), "Second Weapon",pygame.Color('white'))
+
+						pygame.draw.rect(screen,(0,0,0),((i*320)+365,300,250,400))
+      
+						font=pygame.freetype.SysFont(None, 34)
+						font.origin=True
+						font.render_to(screen, ((i*320)+385,350), "Second Slot",pygame.Color('white'))
+      
 						next = entity.controllers[0].second_idx[(entity.controllers[0].second_weapon)+1]
 						new = entity.weapons[next].name
 						new = re.sub("[\(\[].*?[\)\]]", "", new)
-						font.render_to(screen, ((i*320)+220,300), new,pygame.Color('green'))
-						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Secondgun)
+     
+						font.render_to(screen, ((i*320)+385,400), new,pygame.Color('green'))
+						
       
-						logo_x = (i*320)+225
-						logo_y =  300
+	
+						self.button(screen,"Upgrade",(i*320)+390,600,200,80,(130,255,0),(255,0,0),self.levelUp_Secondgun)
+      
+						logo_x = (i*320)+385
+						logo_y =  410
 						show_size = 200
       
-						print(new)
+			
 						if new == "Basic Gun":
 							self.basicgun_logo = pygame.transform.scale(self.basicgun_logo, (show_size, show_size))
 							screen.blit(self.basicgun_logo,(logo_x,logo_y))
@@ -585,7 +627,7 @@ class Game():
 						elif new == "Machine Gun":
 							self.machinegungun_logo = pygame.transform.scale(self.machinegungun_logo, (show_size, show_size))
 							screen.blit(self.machinegungun_logo,(logo_x,logo_y))
-						elif new == "Sniper Rifle":
+						elif new == "Mega Beam":
 							self.sniper_logo = pygame.transform.scale(self.sniper_logo, (show_size, show_size))
 							screen.blit(self.sniper_logo,(logo_x,logo_y))
 						elif new == "Beam Gun":
@@ -599,48 +641,73 @@ class Game():
 							screen.blit(self.rocketlauncher,(logo_x,logo_y))
        
 					if sample_list[i] == 'Damage':
-						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
-						font.render_to(screen, ((i*320)+220,250), "Damage",pygame.Color('white'))
-						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_damage)
+						font=pygame.freetype.SysFont(None, 34)
+						font.origin=True
+      
+						pygame.draw.rect(screen,(0,0,0),((i*320)+365,300,250,400))
+						font.render_to(screen, ((i*320)+385,350), "Damage",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+390,600,200,80,(130,255,0),(255,0,0),self.levelUp_damage)
 
-						logo_x = (i*320)+225
-						logo_y = 300
+						##DESC
+						font_Desc=pygame.freetype.SysFont(None, 20)
+						font_Desc.origin=True
+						font_Desc.render_to(screen, ((i*320)+385,390), "+10% Damage Bonus",pygame.Color('green'))
+      
+      
+						logo_x = (i*320)+385
+						logo_y = 410
 						show_size = 200
       
 						self.damage_logo = pygame.transform.scale(self.damage_logo, (show_size, show_size))
 						screen.blit(self.damage_logo,(logo_x,logo_y))
       
 					if sample_list[i] == 'Bonus':
-						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
-						font.render_to(screen, ((i*320)+220,250), "Exp Bonus",pygame.Color('white'))
-						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Exp)
-
-						logo_x = (i*320)+225
-						logo_y = 300
+						font=pygame.freetype.SysFont(None, 34)
+						font.origin=True
+						pygame.draw.rect(screen,(0,0,0),((i*320)+365,300,250,400))
+						font.render_to(screen, ((i*320)+385,350), "Exp Bonus",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+390,600,200,80,(130,255,0),(255,0,0),self.levelUp_Exp)
+						font_Desc=pygame.freetype.SysFont(None, 20)
+						font_Desc.origin=True
+						font_Desc.render_to(screen, ((i*320)+385,390), "+10% xp Bonus",pygame.Color('green'))
+      
+						logo_x = (i*320)+385
+						logo_y = 410
 						show_size = 200
       
 						self.exp_logo = pygame.transform.scale(self.exp_logo, (show_size, show_size))
 						screen.blit(self.exp_logo,(logo_x,logo_y))
       
 					if sample_list[i] == 'Health':
-						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
-						font.render_to(screen, ((i*320)+220,250), "Health",pygame.Color('white'))
-						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_health)
+					
       
-						logo_x = (i*320)+225
-						logo_y = 300
+						pygame.draw.rect(screen,(0,0,0),((i*320)+365,300,250,400))
+						font=pygame.freetype.SysFont(None, 34)
+						font.origin=True
+						font.render_to(screen, ((i*320)+385,350), "Health",pygame.Color('white'))
+						
+      
+						font_Desc.render_to(screen, ((i*320)+385,390), "+10% Max HP",pygame.Color('green'))
+      
+						logo_x = (i*320)+385
+						logo_y = 410
 						show_size = 200
-      
+
 						self.health_logo = pygame.transform.scale(self.health_logo, (show_size, show_size))
 						screen.blit(self.health_logo,(logo_x,logo_y))
-      
+						self.button(screen,"Upgrade",(i*320)+390,600,200,80,(130,255,0),(255,0,0),self.levelUp_health)
 					if sample_list[i] == 'Plane':
-						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
-						font.render_to(screen, ((i*320)+220,250), "Bomber Plane",pygame.Color('white'))
-						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_health)
+						font=pygame.freetype.SysFont(None, 34)
+						font.origin=True
+      
+						pygame.draw.rect(screen,(0,0,0),((i*320)+365,300,250,400))
+						font.render_to(screen, ((i*320)+375,350), "Bomber Plane",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+390,600,200,80,(130,255,0),(255,0,0),self.levelUp_health)
 
-						logo_x = (i*320)+225
-						logo_y = 300
+						font_Desc.render_to(screen, ((i*320)+385,390), "-10% Plane CD",pygame.Color('green'))
+    
+						logo_x = (i*320)+385
+						logo_y = 410
 						show_size = 200
       
 						self.plane_logo = pygame.transform.scale(self.plane_logo, (show_size, show_size))
@@ -650,14 +717,17 @@ class Game():
 					if sample_list[i] == 'Shield':
          
 				
+						font=pygame.freetype.SysFont(None, 34)
+						font.origin=True
       
-						pygame.draw.rect(screen,(0,0,0),((i*320)+200,200,250,400))
-						font.render_to(screen, ((i*320)+220,250), "Eletric Shield",pygame.Color('white'))
-						self.button(screen,"Upgrade",(i*320)+225,500,200,80,(130,255,0),(255,0,0),self.levelUp_Shield)
+						pygame.draw.rect(screen,(0,0,0),((i*320)+365,300,250,400))
+						font.render_to(screen, ((i*320)+385,350), "Eletric Shield",pygame.Color('white'))
+						self.button(screen,"Upgrade",(i*320)+390,600,200,80,(130,255,0),(255,0,0),self.levelUp_Shield)
       
+						font_Desc.render_to(screen, ((i*320)+385,390), "+1 Max Shield",pygame.Color('green'))
       
-						logo_x = (i*320)+225
-						logo_y = 300
+						logo_x = (i*320)+385
+						logo_y = 410
 						show_size = 200
       
 						self.shield_logo = pygame.transform.scale(self.shield_logo, (show_size, show_size))
@@ -720,8 +790,16 @@ class Game():
 		font.render_to(screen, (550, 100), 'LeaderBoard',pygame.Color('Red'))
 
 	def draw_pauseScreen(self,screen):
-		self.button(screen,"RESUME",400,120,150,90,(255,255,0),(255,0,0),self.toggle_pause)
-		self.button(screen,"QUIT",400,320,150,90,(255,255,0),(255,0,0),self.menu)
+     
+		#pygame.gfxdraw.box(screen, pygame.Rect(0,0,200,200), (100,0,0,1))
+		
+		pygame.draw.rect(screen,(252,186,119),(705,300,290,405))
+		pygame.draw.rect(screen,(255,225,174),(710,300,280,400))
+		
+		pygame.draw.rect(screen,(0,0,0),(765,395,160,100))
+		self.button(screen,"RESUME",770,400,150,90,(183,245,42),(255,0,0),self.toggle_pause)
+		self.button(screen,"QUIT",770,550,150,90,(1,199,171),(255,0,0),self.menu)
+		screen.blit(self.pause_logo,(700,250))
 		#self.timeStop = True
 	def draw_mainMenu(self, screen):
 			bg = pygame.image.load(config.menu_bg)
@@ -756,6 +834,7 @@ class Game():
 
 		if self.timeStop == False:
 			self.stopStart = time.time()
+
 		else:
 			self.stopEnd = time.time()
 			self.toDelTime += abs(self.stopEnd - self.stopStart)

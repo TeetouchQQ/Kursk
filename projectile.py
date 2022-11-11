@@ -34,8 +34,8 @@ class Projectile(Entity):
 		pass
 
 	def draw(self, screen):
-		gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, (0, 255, 0))
-		gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, (0, 255, 0))
+		gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, (255, 50, 0))
+		gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, (255, 60, 0))
 
 	def view_world(self, world):
 		pass
