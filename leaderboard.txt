@@ -22,3 +22,4 @@ awd,0:1
 dwad,0:1
 dwa,0:22
 daw,4:26
+ddawsd,5:31

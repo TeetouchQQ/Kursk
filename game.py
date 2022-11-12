@@ -185,6 +185,21 @@ class Game():
 		textSurf , textRect = self.text_objects(msg,self.font1)
 		textRect.center  =((x+(w/2),(y+(h/2))))
 		screen.blit(textSurf,textRect)
+	def add_outline_to_image(self,image: pygame.Surface, thickness: int, color: tuple, color_key: tuple = (255, 0, 255)) -> pygame.Surface:
+		mask = pygame.mask.from_surface(image)
+		mask_surf = mask.to_surface(setcolor=color)
+		mask_surf.set_colorkey((0, 0, 0))
+
+		new_img = pygame.Surface((image.get_width() + 2, image.get_height() + 2))
+		new_img.fill(color_key)
+		new_img.set_colorkey(color_key)
+
+		for i in -thickness, thickness:
+			new_img.blit(mask_surf, (i + thickness, thickness))
+			new_img.blit(mask_surf, (thickness, i + thickness))
+		new_img.blit(image, (thickness, thickness))
+
+		return new_img
 	def draw_text(self,screen,text, color, size, x, y):
 		text = self.font1.render(text, False, color)
 		text_rect = text.get_rect(center=(x, y))
@@ -203,11 +218,15 @@ class Game():
 
   
 		#font.render_to(self.zoom_surf, (50, 240),'Name : '+ str(self.name2),pygame.Color('dodgerblue'))
-		font=pygame.freetype.SysFont(None, 34)
-		font.origin=True
-		out='{minutes:02d}:{seconds:02d}'.format(minutes=self.minute, seconds=self.sec)
-		font.render_to(self.zoom_surf, (width/2, 100), out,pygame.Color('dodgerblue'))
-  
+		#### Time ###
+		fontTime=pygame.font.SysFont("arial", 30)
+
+		out='{minutes:02d}:{seconds:02d}'.format(minutes=self.minute, seconds=self.sec)	
+		#font.render_to(self.zoom_surf, (width/2, 100), out,pygame.Color('dodgerblue'))
+		text_surf = fontTime.render(str(out), False, (255, 255, 255))
+		text_with_ouline = self.add_outline_to_image(text_surf, 2, (5, 5, 5))
+		self.zoom_surf.blit(text_with_ouline,(width/2, 60))
+		###
 		#print(entity.weapons[entity.current_weapon].name)
 		if entity.weapons[entity.current_weapon].name == "Basic Gun":
 			screen.blit(self.basicgun_logo,(100,50))

@@ -116,7 +116,7 @@ class BurstGun(Weapon):
 
 class Shotgun(Weapon):
 
-	def __init__(self, cooldown=80, spread=6, pellets=10):
+	def __init__(self, cooldown=80, spread=5, pellets=5):
 		self.max_cooldown = cooldown
 		self.cooldown = 0
 
@@ -133,8 +133,8 @@ class Shotgun(Weapon):
 		if button1 and self.cooldown <= 0:
 			for i in range(self.pellets):
 				direction = (target - entity.position).normalize()
-				pellet = Pellet(entity.position + Vector2(entity.width / 2, entity.height / 2) + direction*35, direction.rotate(random.uniform(-self.spread, self.spread)), entity,
-					damage=2.65, speed=random.uniform(11, 13))
+				pellet = Pellet(entity.position + Vector2(entity.width / 2, entity.height / 2) + direction*32, direction.rotate(random.uniform(-self.spread, self.spread)), entity,
+					damage=2, speed=random.uniform(11, 13))
 				entity.spawn.append(pellet)
 			self.cooldown = self.max_cooldown
 

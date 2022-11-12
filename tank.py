@@ -177,7 +177,7 @@ class Tank(Entity):
 			if other.explosive and not other.exploding and not other.plane:
 				other.explode()	
 			if not self.is_player and not other.minibomb and not other.flame:
-					damge_number = DamageNum(self.position,font_size = 17,speed = 1,number = int((other.damage + other.blast_damage) * other.owner.damage_bonus),color=(0,0,0))
+					damge_number = DamageNum(self.position,font_size = 16,speed = 1,number = int((other.damage + other.blast_damage) * other.owner.damage_bonus),color=(255,255,255))
 					self.spawn.append(damge_number)
 
 			self.health = max(self.health - ((other.damage + other.blast_damage) * other.owner.damage_bonus), 0)
