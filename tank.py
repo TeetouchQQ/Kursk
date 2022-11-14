@@ -30,7 +30,7 @@ class Tank(Entity):
 		self.exp_perLevel = self.level * 60
 		self.expBonus = 1
 		self.planeLevel = 0
-		self.max_Shield = max_Shield
+		self.max_Shield = 1
 		#================================================
 
 		self.is_player = is_player
@@ -38,6 +38,8 @@ class Tank(Entity):
 		self.fire_resist = 85
 		self.fire_time = self.fire_resist
 
+		self.size = size
+  
 		self.width = size
 		self.height = size
 		self.max_health = max_health
@@ -54,8 +56,9 @@ class Tank(Entity):
   
 		self.rect = pygame.Rect(self.position.x,self.position.y,self.width,self.width)
 		self.old_rect = self.rect
-  
+		self.Tanktype = Tanktype
 		self.gameOver = False
+		self.get_dmg = False
 		if is_player:
 			
 			self.turret_sprite = pygame.image.load(config.player_turrent).convert_alpha()
@@ -99,39 +102,64 @@ class Tank(Entity):
 				self.turret_sprite  = pygame.image.load(config.scanner_turrent).convert_alpha()
 				self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
 				self.sprite = transform.scale(self.sprite, (self.width, self.height))
+			elif self.Tanktype == 'BOSS':
+				self.image = []
+				self.frame  = 0
+				self.width = self.width*1.4
+				self.sprite = pygame.image.load(config.BOSS_SPRITE).convert_alpha()
+				for i in range(3):
+					#self.image1 = self.sprite.subsurface(Rect(i*170,0,170,140))
+					#self.image1 = pygame.transform.scale(self.image1, (200, 100))
+					
+					self.image1 = self.sprite.subsurface(Rect(0,i*146,272,146))
+					self.image1 = pygame.transform.scale(self.image1, (400, 300))
+					self.image.append(self.image1)
+				self.ori = self.image
 			# else:
 			# 	self.turret_sprite = self.get_turret_sprite()
 			# 	self.image_body = self.turret_sprite 
-
-		self.rotated_turret_sprite = self.turret_sprite
-		self.image_turrent = self.rotated_turret_sprite
+		if self.Tanktype != "BOSS":
+			self.rotated_turret_sprite = self.turret_sprite
+			self.image_turrent = self.rotated_turret_sprite
 	def view_world(self, world):
 		for controller in self.controllers:
 			controller.view_world(self, world)
 
 	def update(self):
+		if self.Tanktype == "BOSS":
+			self.frame += 0.25
 		for controller in self.controllers:
 			controller.control(self)
-   
+		
 		if self.on_fire:
 			self.handle_fire()
+
 		self.old_rect = self.rect.copy()
 		self.rect = pygame.Rect(self.position.x,self.position.y,self.width,self.width)
 		
 	def draw(self, screen):
-		
-		old_rect = self.sprite.get_rect(center = (self.position.x + self.width/2, self.position.y + self.height/2))
-  
-		rotate_rect = self.turret_sprite.get_rect(center = (self.position.x + self.width/2, self.position.y + self.height/2))		
-		self.rotated_turret_sprite, old_turret_rect = self.rotate_center(self.turret_sprite, rotate_rect, self.aim_angle)
-  
-		self.rotated_sprite, new_rect = self.rotate_center(self.sprite, old_rect, self.angle)
+		if self.Tanktype != "BOSS":
+			old_rect = self.sprite.get_rect(center = (self.position.x + self.width/2, self.position.y + self.height/2))
+	
+			rotate_rect = self.turret_sprite.get_rect(center = (self.position.x + self.width/2, self.position.y + self.height/2))		
+			self.rotated_turret_sprite, old_turret_rect = self.rotate_center(self.turret_sprite, rotate_rect, self.aim_angle)
+	
+			self.rotated_sprite, new_rect = self.rotate_center(self.sprite, old_rect, self.angle)
 
-		screen.blit(self.rotated_sprite, new_rect)
-		screen.blit(self.rotated_turret_sprite, old_turret_rect)
+			screen.blit(self.rotated_sprite, new_rect)
+			screen.blit(self.rotated_turret_sprite, old_turret_rect)
 
-		self.draw_health_bar(screen)
-
+			self.draw_health_bar(screen)
+		else:
+			#pygame.draw.rect(screen,(255,0,0),self.rect)
+			if self.get_dmg == False:
+				screen.blit(self.image[round(self.frame) % 3], self.rect)
+			else:
+				cp = self.image[round(self.frame) % 3].copy()
+				cp.fill((200, 200, 200, 90), special_flags=pygame.BLEND_ADD)
+				screen.blit(cp, self.rect)
+				self.get_dmg = False
+   
 	def rotate_by_angle(self, image, angle, rotations={}):
 		r = rotations.get(image, 0) + round(angle)
 		rotations[image] = r
@@ -156,8 +184,8 @@ class Tank(Entity):
 		draw.rect(screen, colour, (self.position.x + self.width / 2 - 26, self.position.y - 13, health_percent * 50, 5))
 
 	def get_turret_sprite(self):
-		#pass
-		return self.ss.image_at(self.ss.turret_sheet, (0, 0, 90, 18), (0, 255, 0))
+		pass
+		#return self.ss.image_at(self.ss.turret_sheet, (0, 0, 90, 18), (0, 255, 0))
 
 	def should_collide(self, other):
 		if (other.projectile or other.hitscan) and other.owner is not self:
@@ -177,9 +205,14 @@ class Tank(Entity):
 			if other.explosive and not other.exploding and not other.plane:
 				other.explode()	
 			if not self.is_player and not other.minibomb and not other.flame:
-					damge_number = DamageNum(self.position,font_size = 16,speed = 1,number = int((other.damage + other.blast_damage) * other.owner.damage_bonus),color=(255,255,255))
-					self.spawn.append(damge_number)
+					damge_number = DamageNum(other.position,font_size = 16,speed = 1,number = int((other.damage + other.blast_damage) * other.owner.damage_bonus),color=(255,255,255))
 
+
+					
+					self.get_dmg = True
+					self.spawn.append(damge_number)
+     
+					#self.image[round(self.frame) % 3] = self.ori
 			self.health = max(self.health - ((other.damage + other.blast_damage) * other.owner.damage_bonus), 0)
 			#print(other.damage)
 			if self.health <= 0:
@@ -206,6 +239,8 @@ class Tank(Entity):
 					self.spawn.append(flame)
 					if self.health <= 0:
 						for die_controller in self.controllers:
+							if self.is_player:
+								self.gameOver = True
 							die_controller.die(self, flame)
 						flame.owner.kills += 1
 				except:

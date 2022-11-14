@@ -90,3 +90,14 @@ def create_healer_enemy(position):
 
 def create_health_pack(position):
 	return HealthPack(position,controllers= [controllers.HealthController()])
+
+def create_BOSS(position,plevel):
+	return Tank(position, [
+		#controllers.BounceMoveController(speed=2),
+		
+		controllers.EnemyScannerController(),
+		controllers.PlayerHunterController(speed=1.5, sight_range=5000, sprint=1),
+		controllers.BossSkillController(),
+		controllers.EnemyDieController()
+	], max_health=9999999,high_colour=(0, 255, 200), low_colour=(0, 100, 0), size=300, collision_radius=165,Tanktype='BOSS'
+             ,damage_bonus = (plevel/10) + 1)

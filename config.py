@@ -33,6 +33,7 @@ Plane_im = "asset2\\PNG\\Retina\\towerDefense_tile271.png"
 Plane_back = "asset2\\PNG\\Retina\\towerDefense_tile294.png"
 bomb_explo = "Asset_ALL\\PNG\\Retina\\explosion4.png"
 
+BOSS_SPRITE = "resize_asset\\boss_sprite4.png"
 
 basic_probs = 0.1
 basic_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_Red_outline.png'

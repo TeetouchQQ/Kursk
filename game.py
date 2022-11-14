@@ -52,6 +52,8 @@ class Game():
 		self.pygameZoom = PygameZoom(width, height)
 		self.pygameZoom.set_zoom_strength(2)
   
+		self.boss_spawn = False
+		self.tank_cnt = 0
 		self.exp_bar = 0
 		self.level = 1
 		self.barMax = self.level * 100
@@ -219,7 +221,7 @@ class Game():
   
 		#font.render_to(self.zoom_surf, (50, 240),'Name : '+ str(self.name2),pygame.Color('dodgerblue'))
 		#### Time ###
-		fontTime=pygame.font.SysFont("arial", 30)
+		fontTime=pygame.font.SysFont("arial", 35)
 
 		out='{minutes:02d}:{seconds:02d}'.format(minutes=self.minute, seconds=self.sec)	
 		#font.render_to(self.zoom_surf, (width/2, 100), out,pygame.Color('dodgerblue'))
@@ -255,7 +257,7 @@ class Game():
 			screen.blit(self.map_bg, (0, 0))
 			player_x = 0
 			player_y = 0
-			
+			self.tank_cnt = 0
 			for entity in self.world.entities:
 				entity.draw(screen)
 			
@@ -291,7 +293,8 @@ class Game():
       
 						random.shuffle(self.upAvalible)
 						self.sample_list = self.upAvalible[:3]
-
+				if (isinstance(entity,Tank)):
+					self.tank_cnt += 1
 					
 			#900 + 700 /2
 	
@@ -312,8 +315,9 @@ class Game():
 
 			self.sec = math.floor(second % 60)
 			self.minute = math.floor(second / 60)
-   
-			if config.sps % 1 == 0 and self.last_sec != self.sec:
+			if self.sec== 15:
+				self.spawn_boss(self.world.entities)
+			if config.sps % 1 == 0 and self.last_sec != self.sec and self.boss_spawn == False:
 				if pr.prob(config.mothership_probs + (self.level / 1000)):
 					self.world.spawn_Mothership(round(1 + round(self.level / 200)),self.level)
 					
@@ -346,11 +350,7 @@ class Game():
 					#print(self.name2)
 					self.draw_gui(self.zoom_surf,entity)
 					
-			#self.draw_text(self.zoom_surf,"EXP : " +str(self.world.player.), (255,0,0), 70, 50, height/16+10)
-			#self.draw_text(self.zoom_surf,str(self.world.player.level), (0,0,0), 70, 50, height/16+30)
-			#self.draw_text(self.zoom_surf,"KILLS : "+str(self.world.player.level), (255,0,0), 70, 50, height/16+50)
-			#print(str(self.kill))
-			######################################3333
+
 			screen.blit(self.zoom_surf, (0, 0))
 			
 		elif self.levelUp == True and self.paused == False and self.main_menu == False:
@@ -358,15 +358,10 @@ class Game():
 				if entity is self.world.player:
 					self.draw_levelUp(screen,self.sample_list)
 
-					#self.timeStop = True
-
-		
-			#self.timeStop = True
 		elif self.gameOver == True:
 			self.draw_GameOver(screen)
 		
 			print('GameOver')
-			
 			
 		
 		elif self.main_menu == True:
@@ -376,17 +371,24 @@ class Game():
 			
 			
 			self.draw_pauseScreen(screen)
+   
 		if self.input_name == True:
 			self.draw_CharacterInput(screen)
-			if len(self.textinput.value) > 1:
-				#print(len(self.textinput.value))
+			if len(self.textinput.value) > 0:
 				self.name2 = self.textinput.value
-				#print(self.name2)
+    
 		if self.showBoard == True:
 			self.draw_Board(screen)
 			
 			
-		
+	def spawn_boss(self,entities):
+		if self.boss_spawn == False:
+			for ent in entities:
+				if(isinstance(ent,Tank) and ent.is_player == False):
+					ent.remove = True
+			self.boss_spawn = True
+			self.world.spawn_BOSS(5)
+    
 	def spawn_player(self):
 		if self.world.player.remove:
 			self.world.player = factories.create_player(Vector2(1, 1), self.chosen_weapons)
@@ -543,7 +545,7 @@ class Game():
 		for i in self.rain:
 			i[1] +=8
 			pygame.draw.rect(screen, (255,255,255), (i, (2, 18)))
-			#pygame.draw.circle(screen,(255,255,255),i,7)
+			#pygame.draw.circle(screen,(255,255,255),i,7)ds
 			if i[1] > 850:
 				i[1] = random.randrange(-50,-5)
 				i[0] = random.randrange(config.width)

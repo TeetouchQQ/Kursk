@@ -45,7 +45,8 @@ class Bullet(Projectile):
 		super().__init__(position, direction, owner, damage, size=size, speed=speed)
 		self.collision_radius = size
 		self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
-  
+		self.owner = owner
+
 		self.image = pygame.image.load(config.bullet_im).convert_alpha()
 		self.image = pygame.transform.scale(self.image, (8*(self.size*0.25),52*(self.size*0.4)))
 	def update(self):
@@ -66,7 +67,13 @@ class Bullet(Projectile):
 		rot_image = pygame.transform.rotate(self.image, round(angle-180))
 		rotate_rect = self.image.get_rect(center = ((self.position.x), (self.position.y)))
 		rot_rect = rot_image.get_rect(center=rotate_rect.center)
-		screen.blit(rot_image,rot_rect)
+		#print(self.owner.Tanktype)
+		if self.owner.Tanktype == "BOSS":
+			cp = rot_image.copy()
+			cp.fill((50, 255, 0, 100), special_flags=pygame.BLEND_RGB_SUB)
+			screen.blit(cp,rot_rect)
+		else:
+			screen.blit(rot_image,rot_rect)
   
 class Pellet(Projectile):
 	def __init__(self, position, direction, owner, damage=2.5, size=1, speed=12 , font_size = 20):

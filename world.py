@@ -46,8 +46,12 @@ class World:
 		light_enemies = [factories.create_light_enemy(self.bounds(),plevel) for i in range(self.difficulty.num_light_enemies)]
 		shotgunner_enemies = [factories.create_shotgunner_enemy(self.bounds(),plevel) for i in range(self.difficulty.num_shotgunner_enemies)]
 		beamer_enemies = [factories.create_beamer_enemy(self.bounds(),plevel) for i in range(self.difficulty.num_beamer_enemies)]
-		scanner_enemies = [factories.create_scanner_enemy(self.bounds(),plevel) for i in range(self.difficulty.num_scanner_enemies)]
-		return enemies + motherships + light_enemies + shotgunner_enemies + beamer_enemies + scanner_enemies
+		scanner_enemies = [factories.create_scanner_enemy((self.bounds()),plevel) for i in range(self.difficulty.num_scanner_enemies)]
+		#BOSS = [factories.create_BOSS((500,500),plevel) for i in range(1)]
+		return enemies + motherships + light_enemies + shotgunner_enemies + beamer_enemies + scanner_enemies #+ BOSS
+
+	def spawn_BOSS(self,plevel):
+		self.entities += [factories.create_BOSS((500,500),plevel) for i in range(1)]
 	def spawn_basic(self,amount,plevel):
 		self.entities +=  [factories.create_basic_enemy(self.bounds(),plevel) for i in range(amount)]
 	def spawn_Mothership(self,amount,plevel):

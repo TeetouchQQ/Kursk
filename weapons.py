@@ -249,4 +249,3 @@ class RocketLauncher(Weapon):
 			entity.spawn.append(rocket)
 			self.cooldown = self.max_cooldown
 
-

@@ -8,9 +8,9 @@ from pygame import transform
 from math import atan2, degrees, pi
 import random
 from scipy.interpolate import interp1d
-from hitscanner import Beam
+from hitscanner import Beam,CageBeam,BossBeam
 from tank import Tank
-from projectile import Bullet, Pellet
+from projectile import Bullet, Pellet,Shield
 from config import width, height
 from config import Player
 import factories
@@ -42,8 +42,97 @@ class EnemyDieController(Controller):
 			entity.spawn.append(health_pack)
 			entity.remove = True
 		entity.remove = True
+		
+
+class BossSkillController(Controller):
+	def __init__(self, bulletCooldown=50,laserCooldown = 100 , beamCooldown = 5,cageCooldown = 1000):
+		self.max_bulletCooldown = bulletCooldown
+		self.bulletCooldown= 0
+		self.name = 'BOSS SKILL'
+  
+		self.max_laserCooldown = laserCooldown
+		self.laserCooldown= 200
+  
+		self.max_beamCooldown = beamCooldown
+		self.beamCooldown = 500
+		self.spawn_Shield = True
 
 
+		self.max_cageCooldown = cageCooldown
+		self.cageCooldown = 500
+  
+		self.point = [(0,-1),(-1,0),(0,1),(1,0),(1,1),(-1,-1),(1,-1),(-1,1)]
+
+		self.laser_angle = 0
+		self.test_vec = (-1,0)
+	def control(self, entity):
+		# if self.spawn_Shield:
+		# 	for i in range(5):
+		# 		shield = Shield((0,0), (0,0), entity, damage=10, size=5,speed = ((entity.max_Shield/10)*0.1))
+		# 		entity.spawn.append(shield)
+		
+		self.bulletCooldown -= 1
+  
+		if self.bulletCooldown <= 0:
+			for i in range(8):
+				#direction = (target - entity.position).normalize()
+				bullet = Bullet(entity.position + Vector2(entity.width / 2, entity.height / 2) +Vector2(self.point[i])*35, Vector2(self.point[i]).normalize(), entity, damage=10, size=5)
+				entity.spawn.append(bullet)
+			self.bulletCooldown = self.max_bulletCooldown
+		#==================================================================
+		self.laserCooldown -= 1
+		if self.laserCooldown <= 0:
+			#self.laser_angle += 0.01
+		
+			oldX = self.test_vec[0]
+			oldY = self.test_vec[1]
+			self.laser_angle = random.randrange(0, 360)
+			newX = oldX * math.cos(self.laser_angle) - oldY * math.sin(self.laser_angle)
+			newY = oldX * math.sin(self.laser_angle) + oldY * math.cos(self.laser_angle)
+			self.test_vec = (newX,newY)
+   
+			beam = BossBeam(entity.position + Vector2(entity.width / 2, entity.height / 2) + Vector2(self.test_vec)*35,Vector2(self.test_vec).normalize(), entity,
+					damage=1)
+			entity.spawn.append(beam)
+			self.laser_angle = random.randrange(0, 360)
+			newX = oldX * math.cos(self.laser_angle) - oldY * math.sin(self.laser_angle)
+			newY = oldX * math.sin(self.laser_angle) + oldY * math.cos(self.laser_angle)
+			self.test_vec = (newX,newY)
+			beam2 = BossBeam(entity.position + Vector2(entity.width / 2, entity.height / 2) + Vector2(self.test_vec)*35,Vector2(self.test_vec).normalize(), entity,
+					damage=1)
+			entity.spawn.append(beam2)
+			self.laserCooldown = self.max_laserCooldown
+   
+		
+		#========================================================================
+  
+		self.beamCooldown -= 1
+		if self.beamCooldown <= 0:
+			main_vec = (-1,-1)
+			oldX  = -1
+			oldY = -1
+			rand_angle = random.randrange(0, 360)
+			newX = oldX * math.cos(rand_angle) - oldY * math.sin(rand_angle)
+			newY = oldX * math.sin(rand_angle) + oldY * math.cos(rand_angle)
+			shoow_vec = (newX,newY)
+			bulletMini = Bullet(entity.position + Vector2(entity.width/2, entity.height/2) + Vector2(shoow_vec)*35,Vector2(shoow_vec).normalize(), entity,
+				damage=1.5, size=1, speed=12)
+			entity.spawn.append(bulletMini)
+			#self.beamCooldown = self.max_beamCooldown
+		#================================================================
+		self.cageCooldown -= 1
+		cageVec = self.point
+		if self.cageCooldown <= 0:
+			for vec in cageVec:
+				cagebeam1 = CageBeam(entity.position + Vector2(entity.width / 2, entity.height / 2) + Vector2(vec)*15,Vector2(vec).normalize(), entity,
+						damage=1, colour=(255, 40, 40), width=5, range=700)
+				entity.spawn.append(cagebeam1)
+
+
+			self.cageCooldown = self.max_cageCooldown
+		#==========================
+
+			
 class BounceMoveController(Controller):
 
 	def __init__(self, speed=3):
@@ -99,7 +188,7 @@ class BounceMoveController(Controller):
 		entity.rotated_sprite = entity.rotate_center(entity.sprite, entity.sprite.get_rect(), -entity.angle)
 		entity.rotated_turret_sprite = entity.rotate_center(entity.sprite, entity.sprite.get_rect(), -entity.angle)
 		entity.aim_angle = angle
-        
+
 class PlayerHunterController(Controller):
 
 	def __init__(self, speed=2, sight_range=300, sprint=2):
