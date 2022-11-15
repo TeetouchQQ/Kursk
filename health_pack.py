@@ -13,7 +13,7 @@ import config
 from damage import DamageNum
 class HealthPack(Entity):
 
-	def __init__(self,position,controllers, health_power=8, collision_radius=15,exp_get = 10,):
+	def __init__(self,position,controllers, health_power=8, collision_radius=15,exp_get = 10,color = (255,255,255)):
 		super().__init__(position, collision_radius=collision_radius)
 		self.collision_radius = collision_radius
 		self.size = 9
@@ -24,7 +24,7 @@ class HealthPack(Entity):
 		self.controllers = controllers
 		self.direction = Vector2(0,0)
 		self.speed = 5
-  
+		self.color = color
 		self.sound = pygame.mixer.Sound(sound.pickUP)
 		self.sound.set_volume(sound.pickupVol)
   
@@ -45,17 +45,30 @@ class HealthPack(Entity):
         
 		self.time = 0
 		self.angle = 0
+  
+		self.entities = []
 	def draw(self, screen):
 		#gfxdraw.aacircle(screen, int(self.position.x), int(self.position.y), self.size, (200, 0, 100))
 		#gfxdraw.filled_circle(screen, int(self.position.x), int(self.position.y), self.size, (200, 0, 100))
 		pic_num = round(self.time) % 8
 		screen.blit(self.shadow,(self.position.x-1,self.position.y+5))
-		screen.blit(self.image_load[pic_num],(self.position.x,self.position.y))
+		cp = self.image_load[pic_num].copy()
+		cp.fill(self.color, special_flags=pygame.BLEND_RGBA_MULT) 
+
+		screen.blit(cp,(self.position.x,self.position.y))
 	def view_world(self, world):
 		for controller in self.controllers:
 			controller.view_world(self, world)
+		self.entities = world.entities
 	def update(self):
-
+		to_remove = []
+		for pack in self.entities:
+			if (isinstance(pack,HealthPack)) == True:
+				if pack.position == self.position:
+					to_remove.append(pack)
+		if len(to_remove) > 0:
+			for x in to_remove[1:]:
+				x.remove = True
 		self.time +=0.25
 		# self.position.x = int(math.cos(self.angle) * 1.0001) + (self.position.x)
 		# self.position.y = int(math.sin(self.angle) * 1.0001) + (self.position.y)

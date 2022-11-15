@@ -35,12 +35,12 @@ blink_menu_vol = 0.2
 
 
 laser1 = "sound\laser1.wav"
-laser_Vol = 0.9
+laser_Vol = 0.2
 laset2 = "sound\laser2.wav"
 laserBase = "sound\laser_base.wav"
 
 megaBEAM = "sound\megamBEAM.wav"
-megaBEAM_vol = 0.4
+megaBEAM_vol = 0.2
 
 flameFire = "sound\\flameFire.wav"
 flameFire_vol = 0.4
@@ -49,3 +49,18 @@ rocketLaunch = "sound\\rocket.wav"
 rocketLaunch_vol = 0.3
 rocketEXPO = "sound\\bombEXPO.wav"
 rocketEXPO_vol  = 0.5
+
+BOSS_music  = "sound\\BOSS_MUSIC.wav"
+bossmusic_vol = 0.2
+
+lvup_sound = "sound\pickup\Pickup_coin 9.wav"
+lvup_vol =  0.1
+
+gameOver = "sound\gameOVER.wav"
+gameOver_vol = 0.4
+
+victory = "sound\\victory.wav"
+victory_vol = 0.3
+
+mainMusic = "sound\\mainMusic.wav"
+music_vol = 0.1

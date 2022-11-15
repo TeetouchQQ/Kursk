@@ -88,8 +88,8 @@ def create_healer_enemy(position):
 		controllers.EnemyDieController()
 	], max_health=20, high_colour=(211, 150, 20), low_colour=(135, 63, 41), size=30, collision_radius=15)
 
-def create_health_pack(position):
-	return HealthPack(position,controllers= [controllers.HealthController()])
+def create_health_pack(position,health_power,exp_get,color):
+	return HealthPack(position,controllers= [controllers.HealthController()],health_power=health_power,exp_get = exp_get,color = color)
 
 def create_BOSS(position,plevel):
 	return Tank(position, [
@@ -99,5 +99,5 @@ def create_BOSS(position,plevel):
 		controllers.PlayerHunterController(speed=1.5, sight_range=5000, sprint=1),
 		controllers.BossSkillController(),
 		controllers.EnemyDieController()
-	], max_health=9999999,high_colour=(0, 255, 200), low_colour=(0, 100, 0), size=300, collision_radius=165,Tanktype='BOSS'
-             ,damage_bonus = (plevel/10) + 1)
+	], max_health=9000000,high_colour=(0, 255, 200), low_colour=(0, 100, 0), size=300, collision_radius=165,Tanktype='BOSS'
+             ,damage_bonus = 10)

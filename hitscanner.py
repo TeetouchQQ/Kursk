@@ -8,9 +8,9 @@ import config
 from entity import Entity
 from tank import Tank
 import sound
-
+from damage import DamageNum
 from config import width, height
-
+from projectile import Plane
 class HitScanner(Entity):
 	def __init__(self, position, direction, owner, damage, range=2000):
 		super().__init__(position, collision_radius=1)
@@ -59,6 +59,18 @@ class HitScanner(Entity):
 		other.health = max(other.health - self.damage, 0)
 		if isinstance(self, Beam):
 			other.on_fire = True
+			other.get_dmg = True
+			damge_number = DamageNum((other.position.x,other.position.y),font_size = 16,speed = 1,number = int((self.damage) * self.owner.damage_bonus),color=(255,255,255))
+			other.spawn.append(damge_number)
+		if isinstance(self, SniperShot) and isinstance(other, Tank)  == True and isinstance(other, Plane) == False:
+			other.on_fire = True
+			other.get_dmg = True
+			if other.Tanktype == "BOSS":
+				damge_number = DamageNum((other.position.x+150,other.position.y+150),font_size = 16,speed = 1,number = int((self.damage) * self.owner.damage_bonus),color=(255,255,255))
+			else:
+				damge_number = DamageNum((other.position.x,other.position.y),font_size = 16,speed = 1,number = int((self.damage) * self.owner.damage_bonus),color=(255,255,255))
+			other.spawn.append(damge_number)
+	
 		if other.health <= 0:
 			for die_controller in other.controllers:
 				die_controller.die(other, self)
@@ -170,7 +182,7 @@ class CageBeam(HitScanner):
 		self.width = width
 		self.colour = colour
 		self.frame = 0
-		self.timer = 1000
+		self.timer = 250
 		self.angle = 0
 		self.Q = Vector2(self.position + (self.direction * self.range))
   

@@ -59,7 +59,7 @@ class Tank(Entity):
 		self.Tanktype = Tanktype
 		self.gameOver = False
 		self.get_dmg = False
-  
+		self.victory = False
 		self.hurt_sound = pygame.mixer.Sound(sound.hurt)
 		self.hurt_sound.set_volume(sound.hurt_vol)
 		if is_player:
@@ -106,6 +106,10 @@ class Tank(Entity):
 				self.turret_sprite = transform.scale(self.turret_sprite, (10, 30))
 				self.sprite = transform.scale(self.sprite, (self.width, self.height))
 			elif self.Tanktype == 'BOSS':
+				pygame.mixer.music.load(sound.BOSS_music)
+				pygame.mixer.music.set_volume(0.25)
+				pygame.mixer.music.play()
+  
 				self.image = []
 				self.frame  = 0
 				self.width = self.width*1.4
@@ -201,13 +205,18 @@ class Tank(Entity):
 		if other.projectile or other.hitscan:
 			if other.projectile and not other.penetrate and not other.explosive and not other.plane:
 				other.remove = True
+				self.get_dmg = True
 			flame_mod = 1
 			if other.projectile and other.flame:
 				self.on_fire = True
 				self.fire_time = 150
+    
+				self.get_dmg = True
 			if other.explosive and not other.exploding and not other.plane:
 				other.explode()	
-			if not self.is_player and not other.minibomb and not other.flame:
+    
+				self.get_dmg = True
+			if not self.is_player and not other.minibomb and not other.flame and not other.plane:
 					damge_number = DamageNum(other.position,font_size = 16,speed = 1,number = int((other.damage + other.blast_damage) * other.owner.damage_bonus),color=(255,255,255))
 					self.get_dmg = True
 					self.spawn.append(damge_number)
@@ -221,12 +230,15 @@ class Tank(Entity):
 			if self.health <= 0:
 				for die_controller in self.controllers:
 					die_controller.die(self, other)
-				
+
 				other.owner.kills += 1
 				other.owner.exp  += 1 * other.owner.expBonus
 				
 				if self.is_player:
 					other.owner.gameOver = True
+				if self.Tanktype == "BOSS":
+					print("BOSS DEAD")
+					other.owner.victory = True
 
 	def handle_fire(self):
 		self.fire_time = max(self.fire_time - 1, 0)

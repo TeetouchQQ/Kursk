@@ -28,6 +28,7 @@ class Projectile(Entity):
 		self.explosive = False
 		self.plane = False
 		self.blast_damage = 0
+		
 		self.angle = 0
 		self.ss
 	def update(self):
@@ -311,8 +312,9 @@ class Plane(Projectile):
 
 	def __init__(self, position, direction, owner, damage=0, size=7, speed=10,angle=0):
 		super().__init__(position, direction, owner, damage, size=size, speed=speed)
-		self.collision_radius = size
-
+		self.collision_radius = 0
+		self.damage_bonus = 1
+		self.plane = True
 		self.width =250
 		self.height = 250
 		self.direction = Vector2(direction)

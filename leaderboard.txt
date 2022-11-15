@@ -37,3 +37,30 @@ awd,0:1
 awd,0:1
 awdwa,0:2
 awd,0:1
+awdawd,0:21 WIN
+awdaw,0:20 WIN
+awdwa,0:27 WIN
+awdawd,0:40 WIN
+dawd,0:26 WIN
+awdawd,0:23 WIN
+awdaw,1:30
+awd,1:18
+awdwa,0:17
+awd,0:58
+dwdwa,1:19
+awdwad,0:21 WIN
+awdaw,0:20 WIN
+awdawd,0:29 WIN
+awda,0:20 WIN
+dawda,0:20 WIN
+awdw,1:4
+awd,0:46
+awd,1:27
+awd,1:40
+awd,2:3
+awdaw,2:8
+awd,2:14
+awd,5:45
+awd,11:32 WIN
+awd,0:25
+awd,0:28

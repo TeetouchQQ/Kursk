@@ -107,12 +107,12 @@ class BurstGun(Weapon):
 		button1, button2, button3 = buttons
 
 		if button1 and self.cooldown <= 0:
-			
+			self.sound.play()
 			self.secondary_bullets_left = Player.max_secondary_bullets
 			self.cooldown = self.max_cooldown
 
 		if self.secondary_bullets_left > 0 and self.burst_cooldown <= 0:
-			self.sound.play()
+			#self.sound.play()
 			direction = (target - entity.position).normalize()
 			bullet = Bullet(entity.position + Vector2(entity.width / 2, entity.height / 2) + direction*35 , direction.rotate(random.uniform(-self.spread, self.spread)), entity,
 				damage=2.5, size=2, speed=13)

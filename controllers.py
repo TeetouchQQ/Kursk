@@ -38,9 +38,13 @@ class EnemyDieController(Controller):
 
 	def die(self, entity, killer):
 		if not entity.is_player and killer.owner.is_player:
-      
-			health_pack = factories.create_health_pack(entity.position)
-
+			chance = random.randint(1,100)
+			if chance <= 10:
+				health_pack = factories.create_health_pack(entity.position,health_power=(8)*2,exp_get = (10)*2,color = (255,255,0))
+			elif chance > 10 and chance <= 40:
+				health_pack = factories.create_health_pack(entity.position,health_power=(8)*1.5,exp_get = (10)*1.5,color = (50,50,200))
+			elif chance > 40:
+				health_pack = factories.create_health_pack(entity.position,health_power=8,exp_get = 10,color = (255,255,255))
 			entity.spawn.append(health_pack)
 			entity.remove = True
 		entity.remove = True
@@ -493,8 +497,8 @@ class PlayerController(Controller):
 		self.main_select = True
 		self.main_idx = [0,2,4,7,8,9]
 		self.second_idx = [1,3,5,6]
-		self.main_weapon = 0
-		self.second_weapon = 0
+		self.main_weapon = 2
+		self.second_weapon = 3
 		self.mouse_x = mouse.get_pos()[0]
 		self.mouse_y = mouse.get_pos()[1]
 
