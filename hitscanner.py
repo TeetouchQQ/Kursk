@@ -7,6 +7,7 @@ import math
 import config
 from entity import Entity
 from tank import Tank
+import sound
 
 from config import width, height
 
@@ -73,8 +74,12 @@ class SniperShot(HitScanner):
 		
 		self.owner= owner
 		self.image = []
+  
+  
 		self.ss = pygame.image.load(config.Shield_img).convert_alpha()
+  
 		
+  
 		self.image1 = self.ss.subsurface(Rect(20,1220,203,120))
 		self.image2 = self.ss.subsurface(Rect(238,1220,203,120))
 		self.image3 = self.ss.subsurface(Rect(453,1220,203,120))
@@ -120,15 +125,10 @@ class SniperShot(HitScanner):
 		P = Vector2(self.position)
 		Q = Vector2(self.position + (self.direction * self.range))
 
-		#draw.lines(screen, (0, 255, 0), False, [(P.x, P.y), (Q.x, Q.y)])
-  
-		
-
 		angle1 = pygame.math.Vector2(self.direction*100).angle_to((1, 0))
 		to_render = pygame.transform.rotate(self.image[round(self.frame) % 10], angle1)
 		new_rect = to_render.get_rect(center = to_render.get_rect(center = (self.position.x + (self.direction.x * 100), self.position.y+ (self.direction.y *100 ))).center)
-
-	
+		#draw.lines(screen, (0, 255, 0), False, [(P.x, P.y), (Q.x, Q.y)])
 		screen.blit(to_render,new_rect)
 		dup_render =pygame.transform.rotate(self.dupIM, angle1)
 		if self.frame % 10 >0:
@@ -140,6 +140,7 @@ class SniperShot(HitScanner):
 			screen.blit(dup_render,new_rect2)
 			screen.blit(dup_render,new_rect3)
 			screen.blit(dup_render,new_rect4)
+   
 class Beam(HitScanner):
 
 	def __init__(self, position, direction, owner, damage, width, colour, range):

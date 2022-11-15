@@ -14,7 +14,7 @@ from projectile import Projectile, Flame
 from damage import DamageNum
 from Plane import Plane
 import config
-
+import sound
 class Tank(Entity):
 	def __init__(self, position, controllers, size=20, max_health=20, high_colour=(255, 0, 0), low_colour=(100, 0, 100),
 				collision_radius=10, weapons=[], is_player =False, sprite_coords=((0, 0, 40, 40), (40, 0, 40, 40),(0, 255, 0)),
@@ -27,10 +27,10 @@ class Tank(Entity):
 		self.health = max_health
 		self.damage_bonus = damage_bonus
 		self.exp = 0
-		self.exp_perLevel = self.level * 60
+		self.exp_perLevel = self.level * 100
 		self.expBonus = 1
 		self.planeLevel = 0
-		self.max_Shield = 1
+		self.max_Shield = max_Shield
 		#================================================
 
 		self.is_player = is_player
@@ -59,6 +59,9 @@ class Tank(Entity):
 		self.Tanktype = Tanktype
 		self.gameOver = False
 		self.get_dmg = False
+  
+		self.hurt_sound = pygame.mixer.Sound(sound.hurt)
+		self.hurt_sound.set_volume(sound.hurt_vol)
 		if is_player:
 			
 			self.turret_sprite = pygame.image.load(config.player_turrent).convert_alpha()
@@ -206,13 +209,13 @@ class Tank(Entity):
 				other.explode()	
 			if not self.is_player and not other.minibomb and not other.flame:
 					damge_number = DamageNum(other.position,font_size = 16,speed = 1,number = int((other.damage + other.blast_damage) * other.owner.damage_bonus),color=(255,255,255))
-
-
-					
 					self.get_dmg = True
 					self.spawn.append(damge_number)
      
 					#self.image[round(self.frame) % 3] = self.ori
+			if self.is_player:
+				self.hurt_sound.play()
+				
 			self.health = max(self.health - ((other.damage + other.blast_damage) * other.owner.damage_bonus), 0)
 			#print(other.damage)
 			if self.health <= 0:

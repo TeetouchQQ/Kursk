@@ -32,6 +32,7 @@ from Player import Player
 from scipy.interpolate import interp1d
 import config
 import time
+import sound
 
 class Game():
 	def __init__(self):
@@ -60,9 +61,13 @@ class Game():
 		self.kill = 0
 		self.P = 0
 		self.name = ''
-		self.textinput = pygame_textinput.TextInputVisualizer()
 		
-
+		
+		self.pastMouseX = 0
+		self.pastMouseY = 0	
+		self.MouseX = 0
+		self.MouseY = 0
+  
 		self.map_bg = pygame.image.load(config.map_bg)
 		self.map_bg = pygame.transform.scale(self.map_bg, (width,height))
   
@@ -114,6 +119,10 @@ class Game():
 		self.minute  =0
 		self.font1 = pygame.font.Font('8-BIT WONDER.TTF',20)
 		self.font2 = pygame.font.SysFont(None, 35)
+		self.font3 = pygame.font.SysFont(None, 80)
+		self.textinput = pygame_textinput.TextInputVisualizer(font_object=self.font3)
+  
+		self.timeShow = ""
 		for i in range(10):
 			self.chosen_weapons.append(True)
 
@@ -133,13 +142,19 @@ class Game():
 
 
 	def update(self):
+		
+  
 		if self.input_name:
 			self.textinput.update(pygame.event.get())
 		for event in pygame.event.get():
 			handler = self.keybinds.get((event.type, getattr(event, 'key', None)))
 			if handler:
 				handler()
-		
+		self.pastMouseX = self.MouseX
+		self.pastMouseY = self.MouseY 
+  
+		self.MouseX = pygame.mouse.get_pos()[0]
+		self.MouseY = pygame.mouse.get_pos()[1]
 		if not self.paused and self.timeStop == False:
 			
 			for entity in self.world.entities:
@@ -173,17 +188,34 @@ class Game():
 			self.rain.append([x,y])
 		
 	def button(self,screen,msg,x,y,w,h,ic,ac,action=None):
+		
 		mouse = pygame.mouse.get_pos()
 		click = pygame.mouse.get_pressed()
+		blink = pygame.mixer.Sound(sound.blink_menu)
+		blink.set_volume(sound.blink_menu_vol)
+		hover = True
+		pastMouse = (self.pastMouseX,self.pastMouseY)
+
+		# print("<------>")
+		# print(self.pastMouseX)
+		# print(self.pastMouseY)
+		# print("=========")
+		# print(mouse)
+		# if pastMouse != mouse:
+		# 	print(pastMouse)
 		if x+w > mouse[0] > x and y+h > mouse[1] >y:
 			pygame.draw.rect(screen,ac,(x,y,w,h))
-   
+			if (x+w-2 > round(pastMouse[0]) > x+2 and y+h-2 > round(pastMouse[1]) > y+2) == False:
+				blink.play()
+
 			if click[0] == 1 and action != None:
 				action()
+				
 
 		else:
 			pygame.draw.rect(screen,ic,(x,y,w,h))
-		
+			hover = False
+
 		textSurf , textRect = self.text_objects(msg,self.font1)
 		textRect.center  =((x+(w/2),(y+(h/2))))
 		screen.blit(textSurf,textRect)
@@ -207,7 +239,7 @@ class Game():
 		text_rect = text.get_rect(center=(x, y))
 		screen.blit(text, text_rect)
 	def draw_gui(self,screen,entity):
-     
+		
 		pygame.draw.rect(self.zoom_surf,(255,255,255),(0,0,self.exp_bar,30))
 		pygame.draw.rect(self.zoom_surf,(33,29,52,255),(0,22,width,30))
 		
@@ -218,18 +250,26 @@ class Game():
 		font.origin=True
 
 
+		#Show level
+		fontlevel = pygame.font.Font('8-BIT WONDER.TTF',20)
+		text_surface = fontlevel.render("LV "+str(entity.level), False, (255,255,255))
+		text_with_ouline = self.add_outline_to_image(text_surface, 2, (1, 1, 1))
+		screen.blit(text_with_ouline, (width/2,23))
   
 		#font.render_to(self.zoom_surf, (50, 240),'Name : '+ str(self.name2),pygame.Color('dodgerblue'))
 		#### Time ###
 		fontTime=pygame.font.SysFont("arial", 35)
 
 		out='{minutes:02d}:{seconds:02d}'.format(minutes=self.minute, seconds=self.sec)	
+		self.timeShow = out
 		#font.render_to(self.zoom_surf, (width/2, 100), out,pygame.Color('dodgerblue'))
 		text_surf = fontTime.render(str(out), False, (255, 255, 255))
 		text_with_ouline = self.add_outline_to_image(text_surf, 2, (5, 5, 5))
 		self.zoom_surf.blit(text_with_ouline,(width/2, 60))
 		###
 		#print(entity.weapons[entity.current_weapon].name)
+  
+
 		if entity.weapons[entity.current_weapon].name == "Basic Gun":
 			screen.blit(self.basicgun_logo,(100,50))
 		elif entity.weapons[entity.current_weapon].name == "Burst Gun":
@@ -250,6 +290,8 @@ class Game():
 
 		
 	def draw(self, screen):
+		
+  
 		if self.timeStop == False:
 			self.time = time.time()
 		if self.paused == False and self.main_menu == False and self.levelUp == False and self.gameOver == False:
@@ -269,6 +311,8 @@ class Game():
 					#Level Logic
 					self.exp_bar = entity.exp*(width/entity.exp_perLevel)
 					if self.exp_bar >= width:
+         
+						pygame.mixer.pause()
 						self.stopStart = time.time()
 						self.rainFall()
 						self.levelUp = True
@@ -305,17 +349,20 @@ class Game():
 			self.zoom_surf = pygame.Surface(zoom_area.size)
 			self.zoom_surf.fill((0,0,0))
 			self.zoom_surf.blit(screen, (0, 0), zoom_area)
-	
+   
+			
 
 			self.zoom_surf = pygame.transform.scale(self.zoom_surf, (wnd_w, wnd_h))
 
-			
+			font=pygame.freetype.SysFont(None, 20)
+			font.origin=True
+			font.render_to(self.zoom_surf,(1200,870),"65010478 Teetouch Jaknamon" ,pygame.Color('white'))
 			#print((self.time - self.startTime) - abs(self.stopEnd - self.stopStart))
 			second = (self.time - self.startTime) - self.toDelTime
-
+ 
 			self.sec = math.floor(second % 60)
 			self.minute = math.floor(second / 60)
-			if self.sec== 15:
+			if self.minute== 10:
 				self.spawn_boss(self.world.entities)
 			if config.sps % 1 == 0 and self.last_sec != self.sec and self.boss_spawn == False:
 				if pr.prob(config.mothership_probs + (self.level / 1000)):
@@ -437,6 +484,7 @@ class Game():
 		self.toDelTime += abs(self.stopEnd - self.stopStart)
 		self.levelUp = False
 		self.timeStop = False
+		pygame.mixer.unpause()
 	def levelUp_Secondgun(self):
 		#print('levelUP Sec')
 		for entity in self.world.entities:
@@ -449,7 +497,7 @@ class Game():
 		self.toDelTime += abs(self.stopEnd - self.stopStart)
 		self.timeStop = False
 		self.levelUp = False
-  
+		pygame.mixer.unpause()
 	def levelUp_damage(self):
 		for entity in self.world.entities:
 			if entity is self.world.player:
@@ -459,7 +507,7 @@ class Game():
 		self.toDelTime += abs(self.stopEnd - self.stopStart)
 		self.timeStop = False
 		self.levelUp = False
-  
+		pygame.mixer.unpause()
 	def levelUp_Exp(self):
 		for entity in self.world.entities:
 			if entity is self.world.player:
@@ -469,7 +517,7 @@ class Game():
 		self.toDelTime += abs(self.stopEnd - self.stopStart)
 		self.timeStop = False
 		self.levelUp = False
-  
+		pygame.mixer.unpause()
 	def levelUp_health(self):
 		for entity in self.world.entities:
 			if entity is self.world.player:
@@ -479,7 +527,7 @@ class Game():
 		self.toDelTime += abs(self.stopEnd - self.stopStart)
 		self.timeStop = False
 		self.levelUp = False
-  
+		pygame.mixer.unpause()
 	def levelUp_Shield(self):
 		for entity in self.world.entities:
 			if entity is self.world.player:
@@ -488,7 +536,7 @@ class Game():
 		self.toDelTime += abs(self.stopEnd - self.stopStart)
 		self.timeStop = False
 		self.levelUp = False
-  
+		pygame.mixer.unpause()
 	def levelUp_Plane(self):
 		for entity in self.world.entities:
 			if entity is self.world.player:
@@ -497,7 +545,7 @@ class Game():
 		self.toDelTime += abs(self.stopEnd - self.stopStart)
 		self.timeStop = False
 		self.levelUp = False
-  
+		pygame.mixer.unpause()
 	def draw_levelUp(self,screen,sample_list):
 		#print('level up draw')
 		to_up = ['Main','Second','Damage','Bonus','Health']
@@ -533,6 +581,8 @@ class Game():
 				
 				#self.font2.render(self.zoom_surf, (50, 220),'Weapon : '+ str(entity.weapons[entity.current_weapon].name),pygame.Color('dodgerblue'))
 		#pygame.draw.rect(self.zoom_surf,(255,255,255),(20,230,200,400))		
+  
+  
 		nnamme = self.font2.render('Name : '+ str(self.name2),True,(0,0,0))
 		Dmg_bonus = self.font2.render('Damage : '+ str(ent.damage_bonus*100) + "%",True,(0,0,0))
 		Exp_bonus = self.font2.render('Exp bonus : '+ str(ent.expBonus*100) + "%",True,(0,0,0))
@@ -540,6 +590,7 @@ class Game():
 		Shield = self.font2.render('Shield : '+ str(ent.max_Shield),True,(0,0,0))
 		pplane = self.font2.render('Plane CD : -'+ str(ent.planeLevel*10) + "%",True,(0,0,0))
 		fire_res = self.font2.render('Fire resist : '+ str(ent.fire_resist) + "%",True,(0,0,0))
+  
 		screen.blit(self.zoom_surf, (0, 0))
 		
 		for i in self.rain:
@@ -763,17 +814,22 @@ class Game():
 		#screen.blit(bg, (0, 0))
   
 		screen.fill((0,0,0))
+  
+		pygame.draw.rect(screen,(255,255,255),(200,180,1150,570))
+		pygame.draw.rect(screen,(0,0,0),(220,190,1100,550))
+  
 		font=pygame.freetype.SysFont(None, 50)
 		font.origin=True
-		font.render_to(screen, (200,200), "Enter your name : ",pygame.Color('white'))
+		font.render_to(screen, (260,420), "Enter your name : ",pygame.Color('white'))
 
 		
   
 		font=pygame.freetype.SysFont(None, 70)
 		font.origin=True
-		screen.blit(self.textinput.surface, (670, 180))
+		screen.blit(self.textinput.surface, (720, 380))
 		self.textinput.font_color = (0, 2, 170)
-		self.button(screen,"LETS GO",700,580,200,90,(0,0,0),(255,0,0),self.save_name)
+		self.button(screen,"LETS GO",550,580,200,90,(20,200,20),(20,255,20),self.save_name)
+		self.button(screen,"BACK",850,580,200,90,(200,15,15),(255,0,0),self.menu)
   
 	def draw_Board(self,screen):
 		screen.fill((0,0,0))
@@ -827,16 +883,32 @@ class Game():
 			bg = pygame.transform.scale(bg, (width,height))
 
 			screen.blit(bg, (0, 0))
-			self.button(screen,"START A GAME",750,330,300,90,(0,0,0),(255,0,0),self.toggle_character)
-			self.button(screen,"Leaderboard",750,440,300,90,(0,0,0),(255,0,0),self.toggle_board)
-			self.button(screen,"OPTION",750,550,300,90,(0,0,0),(255,0,0))
-			self.button(screen,"EXIT",750,660,300,90,(0,0,0),(255,0,0),sys.exit)
+			self.button(screen,"START A GAME",950,330,300,90,(0,0,0),(255,0,0),self.toggle_character)
+			self.button(screen,"Leaderboard",950,440,300,90,(0,0,0),(255,0,0),self.toggle_board)
+			self.button(screen,"OPTION",950,550,300,90,(0,0,0),(255,0,0))
+			self.button(screen,"EXIT",950,660,300,90,(0,0,0),(255,0,0),sys.exit)
    
 	def draw_GameOver(self,screen):
-			screen.fill((0,0,0))
-			self.button(screen,"Continue",400,400,200,90,(255,255,0),(255,0,0),self.record_score)
 
-	def draw_boxก(self, screen, x, y, active, string):
+			pygame.mixer.stop()
+
+			screen.fill((0,0,0))
+
+			fontlevel = pygame.font.Font('8-BIT WONDER.TTF',140)
+			text_surface = fontlevel.render(" GAME OVER ", False, (200,25,25))
+			#text_with_ouline = self.add_outline_to_image(text_surface, 2, (1, 1, 1))
+			screen.blit(text_surface, (100,220))
+  
+  
+			
+			font=pygame.freetype.SysFont(None, 50)
+			font.origin=True
+			font.render_to(screen,(750,500), str(self.timeShow) ,pygame.Color('white'))
+
+  
+			self.button(screen,"Continue",720,600,200,90,(100,200,30),(50,255,50),self.record_score)
+
+	def draw_box(self, screen, x, y, active, string):
 		draw.rect(screen, (80, 0, 0), (x, y, 110, 20))
 		if active:
 			draw.rect(screen, (255, 0, 0), (x, y, 110, 20))
@@ -855,9 +927,11 @@ class Game():
 
 		if self.timeStop == False:
 			self.stopStart = time.time()
-
+			pygame.mixer.pause()
+			
 		else:
 			self.stopEnd = time.time()
+			pygame.mixer.unpause()
 			self.toDelTime += abs(self.stopEnd - self.stopStart)
    
 		self.paused = not self.paused
@@ -872,7 +946,7 @@ class Game():
 
 	def menu(self):
 		self.name = ''
-		
+		self.input_name = False
 		self.textinput.value = ''
 		self.main_menu = True
 		self.world.entities = []
@@ -886,6 +960,7 @@ class Game():
 		
 
 	def start(self):
+		self.boss_spawn = False
 		self.startTime  = time.time()
 		self.sec = 0
 		self.minute  =0
@@ -911,6 +986,7 @@ class Game():
 
 if __name__ == '__main__':
 	pygame.init()
+	pygame.mixer.init()
 	screen = pygame.display.set_mode((width, height))
 	pygame.display.set_caption(config.title)
 	g = Game()
@@ -918,6 +994,7 @@ if __name__ == '__main__':
 	while True:
 		clock.tick()
 		#print (clock.get_fps())
+		
 		g.update()		
 		g.draw(screen)        
 		pygame.display.flip()

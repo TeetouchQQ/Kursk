@@ -4,7 +4,7 @@ class Enemies:
 
 
 class Player:
-	health = 150
+	health = 250
 	max_secondary_bullets = 8
 
 menu_bg = 'bg\Menu_logo.png'
@@ -14,7 +14,7 @@ map_bg = 'bg\map.png'
 levelup_bg = "logo\\levelUP_logo.png"
 pause_logo = "logo\\pause_logo.png"
 width, height = 1560, 900
-zoom = 1.4
+zoom = 2
 
 player_sprite = 'Asset_ALL\\PNG\\Retina\\tankBody_dark_outline.png'
 player_turrent = 'resize_asset\\specialBarrel3_outline.png'

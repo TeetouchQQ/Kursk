@@ -10,7 +10,7 @@ from entity import Entity
 import config
 from config import width, height
 import spritesheet
-
+import sound
 class Projectile(Entity):
 	def __init__(self, position, direction, owner, damage, size, speed):
 		super().__init__(position, collision_radius=5)
@@ -142,19 +142,27 @@ class Rocket(Projectile):
 		self.rect = pygame.Rect(int(self.position.x),int(self.position.y),self.size,self.size)
 		self.rocket = pygame.image.load(config.rocket_bullet).convert_alpha()
 		self.rocket = pygame.transform.scale(self.rocket, (8*(self.size*0.25),52*(self.size*0.4)))
+  
+  
+		self.sound = pygame.mixer.Sound(sound.rocketEXPO)
+		self.sound.set_volume(sound.rocketEXPO_vol)
 	def update(self):
 
 		if self.exploding:
+			
 			self.remove_timer = max(0, self.remove_timer - 1)
 			self.blast_damage = 0
 			self.size += 5
+
    
 		self.position += self.direction * self.speed
 
 		if not (0 < self.position.x < width) and not self.exploding:
 			self.explode()
+			
 		if not (0 < self.position.y < height) and not self.exploding:
 			self.explode()
+			
 		if self.remove_timer == 0:
 			self.remove = True
 
@@ -171,6 +179,7 @@ class Rocket(Projectile):
 		screen.blit(rot_image,rot_rect)
 		
 	def explode(self):
+		self.sound.play()
 		self.rocket = pygame.image.load(config.rocket_explosive).convert_alpha()
 		self.rocket = pygame.transform.scale(self.rocket, (40*self.size,40*self.size))
 		self.size = 40
@@ -250,6 +259,8 @@ class bombDrop(Projectile):
 		self.colour = (255, 0, 0)
 		self.remove_timer = 25
 		self.angle = angle
+  
+		
 		self.minibomb = True
 		if angle == 0:
 			self.position.y -= 200
@@ -320,8 +331,14 @@ class Plane(Projectile):
   
 		self.minibomb_cooldown = 5
 		self.minibomb_Maxcooldown = self.minibomb_cooldown
-
+		self.sound = pygame.mixer.Sound(sound.plane_sound)
+		self.sound.set_volume(sound.plane_vol)
+		self.sound.play()
 		self.angle =  random.randrange(0, 4)
+  
+		self.Bsound = pygame.mixer.Sound(sound.bombEXPO)
+		self.Bsound.set_volume(sound.bombEXPO_vol)
+		
 		if self.angle == 0:
 			self.direction = Vector2(0,1)
 			self.position.x = self.position.x + random.uniform(-100,100)
@@ -351,6 +368,8 @@ class Plane(Projectile):
   
 		self.minibomb_cooldown -= 1
 		if self.minibomb_cooldown <= 0:
+			self.Bsound.play()
+  
 			minibomb = bombDrop(self.position, (0,0), self.owner, damage=0, size=20, speed=15, explosive=True,angle = self.angle)
 			minibomb1 = bombDrop(self.position, (0,0), self.owner, damage=0, size=20, speed=15, explosive=True,angle = self.angle)
 			self.owner.spawn.append(minibomb)

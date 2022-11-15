@@ -14,6 +14,7 @@ from projectile import Bullet, Pellet,Shield
 from config import width, height
 from config import Player
 import factories
+import sound
 from weapons import SniperRifle
 
 from world import World
@@ -37,12 +38,13 @@ class EnemyDieController(Controller):
 
 	def die(self, entity, killer):
 		if not entity.is_player and killer.owner.is_player:
+      
 			health_pack = factories.create_health_pack(entity.position)
 
 			entity.spawn.append(health_pack)
 			entity.remove = True
 		entity.remove = True
-		
+
 
 class BossSkillController(Controller):
 	def __init__(self, bulletCooldown=50,laserCooldown = 100 , beamCooldown = 5,cageCooldown = 1000):
@@ -491,13 +493,16 @@ class PlayerController(Controller):
 		self.main_select = True
 		self.main_idx = [0,2,4,7,8,9]
 		self.second_idx = [1,3,5,6]
-		self.main_weapon = 1
+		self.main_weapon = 0
 		self.second_weapon = 0
 		self.mouse_x = mouse.get_pos()[0]
 		self.mouse_y = mouse.get_pos()[1]
 
 		self.mock_x = 5
 		self.mock_y = 5
+  
+		self.sound = pygame.mixer.Sound(sound.changeGun)
+		self.sound.set_volume(sound.changeGun_vol)
 	def control(self, entity):
 		keys = pygame.key.get_pressed()
 		move = Vector2()
@@ -569,6 +574,8 @@ class PlayerController(Controller):
 		#print(self.main_idx[self.main_weapon])
 		
 		if button3 and self.weapon_switch_cooldown <= 0:
+			
+			self.sound.play()
 			if self.main_select:
 				entity.current_weapon = self.main_idx[self.main_weapon]
 				self.main_select = False
@@ -597,16 +604,13 @@ class PlayerController(Controller):
 		#target_dir = (position - entity.get_centre()).normalize()
 		test = Vector2(self.player_x,self.player_y)
 		target_dir = (position - test ).normalize()
-		#print(target_dir)
 		entity.rotated_turret_sprite = entity.rotate_center(entity.turret_sprite, entity.turret_sprite.get_rect(), -entity.aim_angle)
 		entity.aim_angle = -(((math.atan2(target_dir.y, target_dir.x) * (180/math.pi))) % 360)
-		#print('Entity : ',entity.aim_angle)
-		#print(entity.aim_angle)
-	
-		#print(entity.aim_angle)
-		#pygame.mouse.set_pos(self.player_x,self.player_y)
 		return entity.position + (target_dir).normalize() #* 1000
 		
 	def die(self, entity, killer):
+		print(killer)
+		entity.gameOver = True
 		entity.position = Vector2(-1000, -1000)
-		entity.remove = True
+		#entity.remove = True
+		

@@ -6,6 +6,7 @@ from config import Player
 from entity import Entity
 from projectile import Projectile
 from tank import Tank
+import sound
 import pygame
 import math
 import config
@@ -23,6 +24,10 @@ class HealthPack(Entity):
 		self.controllers = controllers
 		self.direction = Vector2(0,0)
 		self.speed = 5
+  
+		self.sound = pygame.mixer.Sound(sound.pickUP)
+		self.sound.set_volume(sound.pickupVol)
+  
 		self.image_list = ['frame-1.png','frame-2.png','frame-3.png','frame-4.png','frame-5.png','frame-6.png','frame-7.png','frame-8.png']
   
 		self.image_load = [pygame.image.load(config.health_folder + self.image_list[0]).convert_alpha(),
@@ -66,5 +71,6 @@ class HealthPack(Entity):
 			other.health = min(other.health + (other.max_health * (self.health_power/100)), other.max_health)
 			healnum = DamageNum(self.position,font_size = 14,speed = 1,number = int(other.max_health * (self.health_power/100)),color=(0,255,0))
 			self.spawn.append(healnum)
+			self.sound.play()
 			other.exp += self.exp_get
 			self.remove = True
